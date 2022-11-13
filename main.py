@@ -4,6 +4,7 @@ import board
 import myTimer
 import sys
 import math
+import time
 
 pygame.init()
 
@@ -12,6 +13,10 @@ clock = pygame.time.Clock()
 height = 950
 width = 900
 PI = math.pi
+
+eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
+
+loaded_eating_sounds = []
 
 screen = pygame.display.set_mode((height, width))
 pygame.display.set_caption("Pac-Man")
@@ -35,7 +40,7 @@ timer = myTimer.Timer(0.3)
 timer.start_timer()
 
 player = player.Player()
-player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x, player.y), 13)
+player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -49,11 +54,14 @@ def draw_board():
         for j in range(len(level[i])):
             x = j * num2 + (0.5 * num2)
             y = i * num1 + (0.5 * num1)
-            point_calculator = math.sqrt((math.pow((player.x - x), 2) + (math.pow((player.y - y), 2))))
+            point_calculator = math.sqrt((math.pow((player_hitbox.centerx - x), 2) + (math.pow((player_hitbox.centery - y), 2))))
+            
 
             if level[i][j] == 1:
-                if point_calculator < (4 + 13):
+                if point_calculator <= (4 + 13):
                     level[i][j] = 0
+                    loaded_eating_sounds.append((math.floor(x), math.floor(y)))
+                    
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
             if level[i][j] == 2 and not flicker:
@@ -85,6 +93,7 @@ def draw_board():
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
 
 
+
 def end_game():
     screen.fill((0,0,0))
 
@@ -95,8 +104,10 @@ def start_game():
     timer.start_timer()
     gameOver = False
     player_lives = 3
+    tC = 0.02
 
-    while gameLoop:    
+    while gameLoop:  
+        now = time.time()  
         flicker = timer.get_status()
 
 
@@ -136,8 +147,23 @@ def start_game():
 
 
         player.handle_movement(movementDirectionX, movementDirectionY)
-        player_hitbox.centerx = player.x
-        player_hitbox.centery = player.y
+        
+        then = time.time()
+        if loaded_eating_sounds:
+            while((then - now) == 0):
+                then = time.time()
+            tC -= (then - now)
+            
+            if tC <= 0:
+                loaded_eating_sounds.pop()
+                eating_dot_sound.play()
+                tC = 0.02
+                
+
+
+
+        player_hitbox.centerx = player.x+13
+        player_hitbox.centery = player.y+13
 
         screen.fill((0,0,0))
         draw_board()
