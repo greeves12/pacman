@@ -18,6 +18,7 @@ pygame.display.set_caption("Pac-Man")
 
 level = board.boards
 score = 0
+dots_left = 244
 
 main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 
@@ -107,7 +108,6 @@ def start_game():
 
         screen.fill((0,0,0))
         draw_board()
-        player.change_player_img("./assets/1.png")
         
         genericBlit(player.x, player.y, player.img)
 

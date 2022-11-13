@@ -7,17 +7,29 @@ class Player():
     direction = 0
     turns = [False, False, False, False]
     animation_counter = 0 #essentially circular list
+    player_moving = False
+
+
+    player_images = [pygame.image.load("./assets/1.png"), pygame.image.load("./assets/2.png"), pygame.image.load("./assets/3.png"), pygame.image.load("./assets/4.png")]
 
     def __init__(self):
-        self.img = pygame.transform.scale(pygame.image.load("./assets/1.png"), (50,50))
         
         self.x = 60
         self.y = 60
         self.x_change = 0
         self.changeMultiplier = 4
+
+        self.img =  pygame.transform.scale(self.player_images[0], (26,26))
     
-    def change_player_img(self,img):
-        self.img = pygame.transform.scale(pygame.image.load(img), (26,26))
+    def change_player_img(self, direction, img):
+        self.img = pygame.transform.scale(img, (26,26))
+
+        if direction == 1:
+            self.img = pygame.transform.flip(self.img, True, False)
+        elif direction == 2:
+            self.img = pygame.transform.rotate(self.img, 90)
+        elif direction == 3:
+            self.img = pygame.transform.rotate(self.img, 270)
 
     def handle_movement(self, movementX, movementY):
         if movementX == 1:
@@ -30,18 +42,38 @@ class Player():
             self.direction = 2
         
         self.turns = self.check_position(self.x+13, self.y+13)
-        print(self.turns)
-
+       # print(self.turns)
+        self.player_moving = False
 
         if self.direction == 0 and self.turns[0]:
             self.x += movementX * self.changeMultiplier
+            self.player_moving = True
         elif self.direction == 1 and self.turns[1]:
             self.x += movementX * self.changeMultiplier
+            self.player_moving = True
+
         if self.direction == 2 and self.turns[2]:
             self.y += movementY * self.changeMultiplier
+            self.player_moving = True
         elif self.direction == 3 and self.turns[3]:
             self.y += movementY * self.changeMultiplier
+            self.player_moving = True
 
+        if self.x < 20:
+            self.x = 820
+        elif self.x > 820:
+            self.x = 20
+
+
+        if movementX == 0 and movementY == 0:
+            self.player_moving = False
+
+        if self.player_moving:
+            self.change_player_img(self.direction, self.player_images[(self.animation_counter % 4)])
+            self.animation_counter += 1
+        else:
+            self.change_player_img(self.direction, self.player_images[0])
+            self.animation_counter = 1
 
     def check_position(self, centerx, centery):
         turns = [False, False, False, False]
