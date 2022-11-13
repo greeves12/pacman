@@ -17,6 +17,7 @@ screen = pygame.display.set_mode((height, width))
 pygame.display.set_caption("Pac-Man")
 
 level = board.boards
+dots = [[None]*30]*32
 score = 0
 dots_left = 244
 
@@ -34,6 +35,7 @@ timer = myTimer.Timer(0.3)
 timer.start_timer()
 
 player = player.Player()
+player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x, player.y), 13)
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -45,10 +47,20 @@ def draw_board():
 
     for i in range(len(level)):
         for j in range(len(level[i])):
+            x = j * num2 + (0.5 * num2)
+            y = i * num1 + (0.5 * num1)
+            point_calculator = math.sqrt((math.pow((player.x - x), 2) + (math.pow((player.y - y), 2))))
+
             if level[i][j] == 1:
-                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 4)
+                if point_calculator < (4 + 13):
+                    level[i][j] = 0
+                else:
+                    pygame.draw.circle(screen, 'white', (x, y), 4)
             if level[i][j] == 2 and not flicker:
-                pygame.draw.circle(screen, 'white', (j * num2 + (0.5 * num2), i * num1 + (0.5 * num1)), 10)
+                if point_calculator < (4 + 13):
+                    level[i][j] = 0
+                else:
+                    pygame.draw.circle(screen, 'white', (x, y), 10)
             if level[i][j] == 3:
                 pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1),
                                  (j * num2 + (0.5 * num2), i * num1 + num1), 3)
@@ -73,11 +85,16 @@ def draw_board():
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
 
 
+def end_game():
+    screen.fill((0,0,0))
+
 def start_game():
     global flicker, movementDirectionY, movementDirectionX
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
+    gameOver = False
+    player_lives = 3
 
     while gameLoop:    
         flicker = timer.get_status()
@@ -104,7 +121,23 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
+        if player_lives == 0:
+            gameOver = True
+            break
+
+        gameOver = True
+        for x in range(len(level)):
+            for y in range(len(level[x])):
+                if level[x][y] == 1 or level[x][y] == 2:
+                    gameOver = False
+
+        if gameOver:
+            end_game()
+
+
         player.handle_movement(movementDirectionX, movementDirectionY)
+        player_hitbox.centerx = player.x
+        player_hitbox.centery = player.y
 
         screen.fill((0,0,0))
         draw_board()
