@@ -39,8 +39,8 @@ def genericBlit(x, y, img):
 
 def draw_board():
     color = (0, 0, 255)
-    num1 = ((height - 50) // 32)
-    num2 = (width // 30)
+    num1 = ((height - 50) // 32) # This is because there are 32 tiles in each columnn
+    num2 = (width // 30) # This is because there are 30 tiles in each row
 
     for i in range(len(level)):
         for j in range(len(level[i])):
@@ -81,15 +81,16 @@ def start_game():
     while gameLoop:    
         flicker = timer.get_status()
 
+
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
 
             if keystate[pygame.K_DOWN]:
                 movementDirectionX = 0
-                movementDirectionY = -1
+                movementDirectionY = 1
             elif keystate[pygame.K_UP]:
                 movementDirectionX = 0
-                movementDirectionY = 1
+                movementDirectionY = -1
             elif keystate[pygame.K_LEFT]:
                 movementDirectionY = 0
                 movementDirectionX = -1
@@ -102,10 +103,15 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
+        player.handle_movement(movementDirectionX, movementDirectionY)
+
         screen.fill((0,0,0))
         draw_board()
+        player.change_player_img("./assets/1.png")
         
-        player.handle_movement(movementDirectionX, movementDirectionY)
+        genericBlit(player.x, player.y, player.img)
+
+        
 
         pygame.display.update()
         clock.tick(60)
