@@ -8,7 +8,7 @@ class Player():
     turns = [False, False, False, False] #right, left, up, down
     animation_counter = 0 #essentially circular list
     player_moving = False
-    vetoTime = 10
+    vetoTime = 5
     vetoDirection = -1
   
 
@@ -59,13 +59,14 @@ class Player():
         if self.vetoDirection != -1 and self.turns[self.vetoDirection]:
             self.direction = self.vetoDirection
             self.vetoDirection = -1
-            self.vetoTime = 10
+            self.vetoTime = 5
 
-            
+        if self.vetoDirection > -1:
+            self.vetoTime -=1
         
         if self.vetoTime == 0 and self.vetoDirection != -1:
-            self.vetoTime = 10
-            self.vetoDirection = -1
+            self.vetoTime = 5
+            self.vetoDirection = self.direction
 
         if self.direction == 0:
             movementX = 1

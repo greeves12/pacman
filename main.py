@@ -59,18 +59,18 @@ def draw_board():
             
 
             if level[i][j] == 1:
-                if point_calculator <= (4 + 13):
+                if point_calculator < (4 + 13):
                     level[i][j] = 0
                     loaded_eating_sounds.append((math.floor(x), math.floor(y)))
                     dots_left -= 1
                     
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
-            if level[i][j] == 2 and not flicker:
-                if point_calculator < (4 + 13):
+            if level[i][j] == 2:
+                if point_calculator < (10 + 13):
                     level[i][j] = 0
                     dots_left -=1
-                else:
+                elif not flicker:
                     pygame.draw.circle(screen, 'white', (x, y), 10)
             if level[i][j] == 3:
                 pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1),
