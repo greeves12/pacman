@@ -5,10 +5,12 @@ import math
 class Player():
     level = board.boards
     direction = 0
-    turns = [False, False, False, False]
+    turns = [False, False, False, False] #right, left, up, down
     animation_counter = 0 #essentially circular list
     player_moving = False
-
+    vetoTime = 10
+    vetoDirection = -1
+  
 
     player_images = [pygame.image.load("./assets/1.png"), pygame.image.load("./assets/2.png"), pygame.image.load("./assets/3.png"), pygame.image.load("./assets/4.png")]
 
@@ -32,18 +34,53 @@ class Player():
             self.img = pygame.transform.rotate(self.img, 270)
 
     def handle_movement(self, movementX, movementY):
-        if movementX == 1:
-            self.direction = 0
-        elif movementX == -1:
-            self.direction = 1
-        elif movementY == 1:
-            self.direction = 3
-        elif movementY == -1:
-            self.direction = 2
-        
         self.turns = self.check_position(self.x+13, self.y+13)
+
+
+        oldDir = self.direction
+
+    
+         
+        if movementX == 1: #right
+            self.direction = 0
+        elif movementX == -1: #left
+            self.direction = 1
+        elif movementY == 1: #down
+            self.direction = 3
+        elif movementY == -1: #up
+            self.direction = 2
+
+        if self.turns[self.direction] == False:
+            self.vetoDirection = self.direction
+            self.direction = oldDir
+
+           
+
+        if self.vetoDirection != -1 and self.turns[self.vetoDirection]:
+            self.direction = self.vetoDirection
+            self.vetoDirection = -1
+            self.vetoTime = 10
+
+            
+        
+        if self.vetoTime == 0 and self.vetoDirection != -1:
+            self.vetoTime = 10
+            self.vetoDirection = -1
+
+        if self.direction == 0:
+            movementX = 1
+        elif self.direction == 1:
+            movementX = -1
+
+        if self.direction == 2:
+            movementY = -1
+        elif self.direction == 3:
+            movementY = 1
+    
+        
        # print(self.turns)
         self.player_moving = False
+        print(self.direction)
 
         if self.direction == 0 and self.turns[0]:
             self.x += movementX * self.changeMultiplier
@@ -74,6 +111,7 @@ class Player():
         else:
             self.change_player_img(self.direction, self.player_images[0])
             self.animation_counter = 1
+
 
     def check_position(self, centerx, centery):
         turns = [False, False, False, False]

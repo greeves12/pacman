@@ -24,7 +24,7 @@ pygame.display.set_caption("Pac-Man")
 level = board.boards
 dots = [[None]*30]*32
 score = 0
-dots_left = 244
+dots_left = 246
 
 main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 
@@ -46,6 +46,7 @@ def genericBlit(x, y, img):
     screen.blit(img, (x,y))
 
 def draw_board():
+    global dots_left
     color = (0, 0, 255)
     num1 = ((height - 50) // 32) # This is because there are 32 tiles in each columnn
     num2 = (width // 30) # This is because there are 30 tiles in each row
@@ -61,12 +62,14 @@ def draw_board():
                 if point_calculator <= (4 + 13):
                     level[i][j] = 0
                     loaded_eating_sounds.append((math.floor(x), math.floor(y)))
+                    dots_left -= 1
                     
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
             if level[i][j] == 2 and not flicker:
                 if point_calculator < (4 + 13):
                     level[i][j] = 0
+                    dots_left -=1
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 10)
             if level[i][j] == 3:
@@ -98,13 +101,14 @@ def end_game():
     screen.fill((0,0,0))
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX
+    global flicker, movementDirectionY, movementDirectionX, dots_left
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
     gameOver = False
     player_lives = 3
     tC = 0.02
+    changed = False
 
     while gameLoop:  
         now = time.time()  
@@ -117,16 +121,19 @@ def start_game():
             if keystate[pygame.K_DOWN]:
                 movementDirectionX = 0
                 movementDirectionY = 1
+                changed = True
             elif keystate[pygame.K_UP]:
                 movementDirectionX = 0
                 movementDirectionY = -1
+                changed = True
             elif keystate[pygame.K_LEFT]:
                 movementDirectionY = 0
                 movementDirectionX = -1
+                changed = True
             elif keystate[pygame.K_RIGHT]:
                 movementDirectionX = 1
                 movementDirectionY = 0
-
+                changed = True
             if event.type == pygame.QUIT:
                 timer.kill_thread()
                 pygame.quit()
@@ -144,9 +151,14 @@ def start_game():
 
         if gameOver:
             end_game()
+            break
 
+        if dots_left == 0:
+            end_game()
+            break
 
         player.handle_movement(movementDirectionX, movementDirectionY)
+        changed = False
         
         then = time.time()
         if loaded_eating_sounds:
@@ -197,7 +209,7 @@ while running:
             if menuOption == 0:
                 timer.kill_thread()
                 start_game()
-                timer = myTimer.Timer()
+                timer = myTimer.Timer(0.8)
             else:
                 timer.kill_thread()
                 pygame.quit()
