@@ -81,7 +81,6 @@ class Player():
         
        # print(self.turns)
         self.player_moving = False
-        print(self.direction)
 
         if self.direction == 0 and self.turns[0]:
             self.x += movementX * self.changeMultiplier

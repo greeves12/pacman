@@ -5,6 +5,7 @@ import myTimer
 import sys
 import math
 import time
+import enemy
 
 pygame.init()
 
@@ -18,11 +19,10 @@ eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
 
 loaded_eating_sounds = []
 
-screen = pygame.display.set_mode((height, width))
+screen = pygame.display.set_mode((1000, 900))
 pygame.display.set_caption("Pac-Man")
 
 level = board.boards
-dots = [[None]*30]*32
 score = 0
 dots_left = 246
 
@@ -42,11 +42,16 @@ timer.start_timer()
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
+enemy1 = enemy.Enemy()
+
+poweredUp = False
+
+
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
 
 def draw_board():
-    global dots_left
+    global dots_left, poweredUp
     color = (0, 0, 255)
     num1 = ((height - 50) // 32) # This is because there are 32 tiles in each columnn
     num2 = (width // 30) # This is because there are 30 tiles in each row
@@ -63,13 +68,19 @@ def draw_board():
                     level[i][j] = 0
                     loaded_eating_sounds.append((math.floor(x), math.floor(y)))
                     dots_left -= 1
-                    
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
             if level[i][j] == 2:
                 if point_calculator < (10 + 13):
                     level[i][j] = 0
                     dots_left -=1
+                    screen.fill((0,0,0))
+                    draw_board()
+                    genericBlit(player.x, player.y, player.img)
+                    pygame.display.update()
+                    time.sleep(1)
+                    poweredUp = True
+                    
                 elif not flicker:
                     pygame.draw.circle(screen, 'white', (x, y), 10)
             if level[i][j] == 3:
@@ -107,11 +118,9 @@ def start_game():
     timer.start_timer()
     gameOver = False
     player_lives = 3
-    tC = 0.02
-    changed = False
 
     while gameLoop:  
-        now = time.time()  
+         
         flicker = timer.get_status()
 
 
@@ -121,19 +130,19 @@ def start_game():
             if keystate[pygame.K_DOWN]:
                 movementDirectionX = 0
                 movementDirectionY = 1
-                changed = True
+                
             elif keystate[pygame.K_UP]:
                 movementDirectionX = 0
                 movementDirectionY = -1
-                changed = True
+              
             elif keystate[pygame.K_LEFT]:
                 movementDirectionY = 0
                 movementDirectionX = -1
-                changed = True
+                
             elif keystate[pygame.K_RIGHT]:
                 movementDirectionX = 1
                 movementDirectionY = 0
-                changed = True
+                
             if event.type == pygame.QUIT:
                 timer.kill_thread()
                 pygame.quit()
@@ -158,30 +167,19 @@ def start_game():
             break
 
         player.handle_movement(movementDirectionX, movementDirectionY)
-        changed = False
-        
-        then = time.time()
-        if loaded_eating_sounds:
-            while((then - now) == 0):
-                then = time.time()
-            tC -= (then - now)
-            
-            if tC <= 0:
-                loaded_eating_sounds.pop()
-                eating_dot_sound.play()
-                tC = 0.02
-                
-
-
+        enemy1.handleMovement(poweredUp, player)
 
         player_hitbox.centerx = player.x+13
         player_hitbox.centery = player.y+13
 
         screen.fill((0,0,0))
         draw_board()
+
+        if poweredUp:
+            enemy1.swapToPowerup()
         
         genericBlit(player.x, player.y, player.img)
-
+        genericBlit(enemy1.x, enemy1.y, enemy1.img)
         
 
         pygame.display.update()
