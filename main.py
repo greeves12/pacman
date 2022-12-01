@@ -45,7 +45,7 @@ levelCount = 1
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
-enemy1 = enemy.Enemy(0.8/levelCount)
+enemies = [enemy.Enemy(0.8/levelCount)]
 
 poweredUp = False
 player_lives = 3
@@ -149,8 +149,31 @@ def next_level():
     levelCount +=1 
     dots_left = 246
 
+def checkCollisions(player, enemies, poweredUp):
+    collision = False
+    playerX1 = player.x
+    playerX2 = player.x + 26
+    playerY1 = player.y
+    playerY2 = player.y + 26
+
+
+    for enemy in enemies:
+        enemyX1 = enemy.x
+        enemyX2 = enemy.x+26
+        enemyY1 = enemy.y
+        enemyY2 = enemy.y + 26
+
+        if not poweredUp:
+            if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
+                collision = True
+                break
+        else:
+            enemy.swapToPowerUp()
+    
+    return collision
+
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
@@ -186,10 +209,6 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
-        if player_lives == 0:
-            gameOver = True
-            break
-
         gameOver = True
         for x in range(len(level)):
             for y in range(len(level[x])):
@@ -202,19 +221,29 @@ def start_game():
 
 
         player.handle_movement(movementDirectionX, movementDirectionY)
-        enemy1.handleMovement(poweredUp, player)
 
-        player_hitbox.centerx = player.x+13
-        player_hitbox.centery = player.y+13
+        for x in enemies:
+            x.handleMovement(poweredUp, player)
+       
+
+        if checkCollisions(player, enemies, poweredUp):
+            player_lives -= 1
+
+        if player_lives == 0:
+            gameOver = True
+            break
 
         screen.fill((0,0,0))
         draw_board()
 
         if poweredUp:
-            enemy1.swapToPowerup()
+            for x in enemies:
+                x.swapToPowerup()
         
         genericBlit(player.x, player.y, player.img)
-        genericBlit(enemy1.x, enemy1.y, enemy1.img)
+       
+        for x in enemies:
+            genericBlit(x.x, x.y, x.img)
         
         if dots_left == 0:
             next_level()
