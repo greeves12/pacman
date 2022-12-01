@@ -16,7 +16,6 @@ class Enemy():
         self.img = self.normalImage
         self.changeMultiplier = 3
 
-
     def swapToPowerup(self):
         self.img = self.powerUpImage
     
@@ -24,69 +23,84 @@ class Enemy():
         self.img = self.normalImage
     
     def handleMovement(self, powerUp, player):
-        self.turns = self.check_position(self.x+13, self.y+13)
         
-        equal = player.x - self.x
+        newTurns = self.turns
+        if self.direction == 0:
+            self.turns[0] = True
+        elif self.direction == 1:
+            self.turns[1] = True
+        elif self.direction == 2:
+            self.turns[2] = True
+        elif self.direction == 3:
+            self.turns[3] = True
+        
+        nextTurn = self.check_position(self.x+13, self.y+13)
 
-        if equal < 0:
-            equal = equal * -1
+        if nextTurn != newTurns:
+            self.turns = nextTurn
+            
 
-        if powerUp:
-            #Run away from the player
-            False
-        else:
-           
-            if equal < 3:
-                print("f")
-                if player.y > self.y:
-                    if self.turns[3]:
-                        self.direction = 3
-                else:
-                    if self.turns[2]:
-                        self.direction = 2
-            #Chase the player
-            elif player.x > self.x:
-                if self.turns[0]: #attempt to move enemy right
-                    self.direction = 0
-                elif player.y > self.y:
-                    if self.turns[3]:
-                        self.direction = 3
-                else:
-                    if self.turns[2]:
-                        self.direction = 2
-              
-            elif player.x < self.x:
+            equal = player.x - self.x
+
+            if equal < 0:
+                equal = equal * -1
+
+            if powerUp:
+                #Run away from the player
+                False
+            else:
+            
+                if equal < 3:
                 
-                if self.turns[1]: #attempt to move enemy left                
-                    self.direction = 1 
-                elif player.y > self.y:
+                    if player.y > self.y:
+                        if self.turns[3]:
+                            self.direction = 3
+                    else:
+                        if self.turns[2]:
+                            self.direction = 2
+                #Chase the player
+                elif player.x > self.x:
+                    if self.turns[0]: #attempt to move enemy right
+                        self.direction = 0
+                    elif player.y > self.y:
+                        if self.turns[3]:
+                            self.direction = 3
+                    else:
+                        if self.turns[2]:
+                            self.direction = 2
+                
+                elif player.x < self.x:
                     
-                    if self.turns[3]:
-                        self.direction = 3
+                    if self.turns[1]: #attempt to move enemy left                
+                        self.direction = 1 
+                    elif player.y > self.y:
+                        
+                        if self.turns[3]:
+                            self.direction = 3
 
-                else:
-                    if self.turns[2]:
-                        self.direction = 2   
+                    else:
+                        if self.turns[2]:
+                            self.direction = 2   
 
-            if self.direction == 0 and self.turns[0]:
-                self.x += 1 * self.changeMultiplier
+        if self.direction == 0 and self.turns[0]:
+            self.x += 1 * self.changeMultiplier
        
-            elif self.direction == 1 and self.turns[1]:
-                self.x += -1 * self.changeMultiplier
+        elif self.direction == 1 and self.turns[1]:
+            self.x += -1 * self.changeMultiplier
                 
 
-            if self.direction == 2 and self.turns[2]:
-                self.y += -1 * self.changeMultiplier
+        if self.direction == 2 and self.turns[2]:
+            self.y += -1 * self.changeMultiplier
                 
-            elif self.direction == 3 and self.turns[3]:
-                self.y += 1 * self.changeMultiplier
+        elif self.direction == 3 and self.turns[3]:
+            self.y += 1 * self.changeMultiplier
             
            
 
-            if self.x < 20:
-                self.x = 820
-            elif self.x > 820:
-                self.x = 20       
+        if self.x < 20:
+           self.x = 820
+        elif self.x > 820:
+            self.x = 20       
 
             
 
