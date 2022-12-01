@@ -6,6 +6,7 @@ import sys
 import math
 import time
 import enemy
+import copy
 
 pygame.init()
 
@@ -22,7 +23,7 @@ loaded_eating_sounds = []
 screen = pygame.display.set_mode((1000, 900))
 pygame.display.set_caption("Pac-Man")
 
-level = board.boards
+level = copy.deepcopy(board.boards)
 score = 0
 dots_left = 246
 
@@ -39,7 +40,7 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
-levelCount = 3
+levelCount = 1
 
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
@@ -47,7 +48,7 @@ player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 
 enemy1 = enemy.Enemy(0.8/levelCount)
 
 poweredUp = False
-
+player_lives = 3
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -111,7 +112,42 @@ def draw_board():
 
 
 def end_game():
-    screen.fill((0,0,0))
+    restart = False
+
+    while not restart:
+        for event in pygame.event.get():
+            keystate = pygame.key.get_pressed()
+            if keystate[pygame.K_RETURN]:
+                restart = True
+
+            if event.type == pygame.QUIT:
+                pygame.QUIT
+                sys.exit()
+        
+        screen.fill((0,0,0))
+        pygame.display.update()
+        clock.tick(60)
+
+def next_level():
+    global level, levelCount, dots_left
+    proceed = False
+
+    while not proceed:
+        for event in pygame.event.get():
+            keystate = pygame.key.get_pressed()
+            if keystate[pygame.K_RETURN]:
+                proceed = True
+
+            if event.type == pygame.QUIT:
+                pygame.QUIT
+                sys.exit()
+        screen.fill((0,0,0))
+        pygame.display.update()
+        clock.tick(60)
+    
+    level = copy.deepcopy(board.boards)
+    levelCount +=1 
+    dots_left = 246
 
 def start_game():
     global flicker, movementDirectionY, movementDirectionX, dots_left
@@ -119,7 +155,7 @@ def start_game():
     timer = myTimer.Timer(0.8)
     timer.start_timer()
     gameOver = False
-    player_lives = 3
+    level = copy.deepcopy(board.boards)
 
     while gameLoop:  
          
@@ -164,9 +200,6 @@ def start_game():
             end_game()
             break
 
-        if dots_left == 0:
-            end_game()
-            break
 
         player.handle_movement(movementDirectionX, movementDirectionY)
         enemy1.handleMovement(poweredUp, player)
@@ -183,6 +216,9 @@ def start_game():
         genericBlit(player.x, player.y, player.img)
         genericBlit(enemy1.x, enemy1.y, enemy1.img)
         
+        if dots_left == 0:
+            next_level()
+            
 
         pygame.display.update()
         clock.tick(60)
