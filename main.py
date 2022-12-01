@@ -39,10 +39,12 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
+levelCount = 3
+
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
-enemy1 = enemy.Enemy()
+enemy1 = enemy.Enemy(0.8/levelCount)
 
 poweredUp = False
 

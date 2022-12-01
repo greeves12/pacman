@@ -9,12 +9,14 @@ class Enemy():
     turns = [False,False,False,False]
     direction = 0
     level = board.boards
+   
 
-    def __init__(self):
+    def __init__(self, randomMove):
         self.x = 380
         self.y = 255
         self.img = self.normalImage
         self.changeMultiplier = 3
+        self.randomMoveChance = randomMove
 
     def swapToPowerup(self):
         self.img = self.powerUpImage
@@ -23,7 +25,8 @@ class Enemy():
         self.img = self.normalImage
     
     def handleMovement(self, powerUp, player):
-        
+        doRandom = False
+
         newTurns = self.turns
         if self.direction == 0:
             self.turns[0] = True
@@ -38,7 +41,10 @@ class Enemy():
 
         if nextTurn != newTurns:
             self.turns = nextTurn
-            
+            randomMove = random.randrange(1,100)
+      
+            if (randomMove <= (self.randomMoveChance*100)) and (randomMove >= 0):
+                doRandom = True
 
             equal = player.x - self.x
 
@@ -51,13 +57,16 @@ class Enemy():
             else:
             
                 if equal < 3:
-                
                     if player.y > self.y:
                         if self.turns[3]:
                             self.direction = 3
+                        elif self.turns[0]:
+                            self.direction = 0
                     else:
                         if self.turns[2]:
                             self.direction = 2
+                        elif self.turns[1]:
+                            self.direction =1
                 #Chase the player
                 elif player.x > self.x:
                     if self.turns[0]: #attempt to move enemy right
@@ -69,7 +78,7 @@ class Enemy():
                         if self.turns[2]:
                             self.direction = 2
                 
-                elif player.x < self.x:
+                elif player.x <= self.x:
                     
                     if self.turns[1]: #attempt to move enemy left                
                         self.direction = 1 
@@ -81,6 +90,14 @@ class Enemy():
                     else:
                         if self.turns[2]:
                             self.direction = 2   
+
+
+                if doRandom:
+                    rando = random.randint(0,3)
+                    while self.turns[rando] == False:
+                        rando = random.randint(0,3)
+                    self.direction = rando
+
 
         if self.direction == 0 and self.turns[0]:
             self.x += 1 * self.changeMultiplier
