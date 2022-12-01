@@ -9,15 +9,21 @@ class Enemy():
     turns = [False,False,False,False]
     direction = 0
     level = board.boards
-   
+    startX = 380
+    startY = 255
 
-    def __init__(self, randomMove):
+    def __init__(self, randomMove, imgage):
         self.x = 380
         self.y = 255
+        self.normalImage = imgage
         self.img = self.normalImage
         self.changeMultiplier = 3
         self.randomMoveChance = randomMove
+        
 
+    def restart(self):
+        self.x = self.startX
+        self.y = self.startY
     def swapToPowerup(self):
         self.img = self.powerUpImage
     
@@ -54,8 +60,7 @@ class Enemy():
             if powerUp:
                 #Run away from the player
                 False
-            else:
-            
+            else:           
                 if equal < 3:
                     if player.y > self.y:
                         if self.turns[3]:

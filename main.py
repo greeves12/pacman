@@ -20,7 +20,7 @@ eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
 
 loaded_eating_sounds = []
 
-screen = pygame.display.set_mode((1000, 900))
+screen = pygame.display.set_mode((900, 1000))
 pygame.display.set_caption("Pac-Man")
 
 level = copy.deepcopy(board.boards)
@@ -45,7 +45,8 @@ levelCount = 1
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
-enemies = [enemy.Enemy(0.8/levelCount)]
+enemies = [enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/red.png"), (26,26))), enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/blue.png"), (26,26))),
+enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/orange.png"), (26,26))), enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/pink.png"), (26,26)))]
 
 poweredUp = False
 player_lives = 3
@@ -112,6 +113,7 @@ def draw_board():
 
 
 def end_game():
+    global level, levelCount, dots_left, player_lives
     restart = False
 
     while not restart:
@@ -128,6 +130,15 @@ def end_game():
         pygame.display.update()
         clock.tick(60)
 
+    dots_left = 246
+    player_lives = 3
+    level = copy.deepcopy(board.boards)
+    levelCount = 1
+    player.restart()
+
+    for enemy in enemies:
+        enemy.restart()
+    
 def next_level():
     global level, levelCount, dots_left
     proceed = False
@@ -148,6 +159,11 @@ def next_level():
     level = copy.deepcopy(board.boards)
     levelCount +=1 
     dots_left = 246
+    
+    player.restart()
+
+    for enemy in enemies:
+        enemy.restart()
 
 def checkCollisions(player, enemies, poweredUp):
     collision = False
@@ -168,7 +184,7 @@ def checkCollisions(player, enemies, poweredUp):
                 collision = True
                 break
         else:
-            enemy.swapToPowerUp()
+            enemy.swapToPowerup()
     
     return collision
 
@@ -177,7 +193,6 @@ def start_game():
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
-    gameOver = False
     level = copy.deepcopy(board.boards)
 
     while gameLoop:  
@@ -215,11 +230,6 @@ def start_game():
                 if level[x][y] == 1 or level[x][y] == 2:
                     gameOver = False
 
-        if gameOver:
-            end_game()
-            break
-
-
         player.handle_movement(movementDirectionX, movementDirectionY)
         player_hitbox.centerx = player.x+13
         player_hitbox.centery = player.y+13
@@ -231,11 +241,13 @@ def start_game():
 
         if checkCollisions(player, enemies, poweredUp):
             player_lives -= 1
+            player.restart()
 
         if player_lives == 0:
-            gameOver = True
+            end_game()
             break
 
+        
         screen.fill((0,0,0))
         draw_board()
 

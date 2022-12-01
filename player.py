@@ -10,6 +10,8 @@ class Player():
     player_moving = False
     vetoTime = 5
     vetoDirection = -1
+    startX = 60
+    startY = 60
   
 
     player_images = [pygame.image.load("./assets/1.png"), pygame.image.load("./assets/2.png"), pygame.image.load("./assets/3.png"), pygame.image.load("./assets/4.png")]
@@ -23,6 +25,10 @@ class Player():
 
         self.img =  pygame.transform.scale(self.player_images[0], (26,26))
     
+    def restart(self):
+        self.x = self.startX
+        self.y = self.startY
+
     def change_player_img(self, direction, img):
         self.img = pygame.transform.scale(img, (26,26))
 
