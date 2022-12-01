@@ -221,6 +221,9 @@ def start_game():
 
 
         player.handle_movement(movementDirectionX, movementDirectionY)
+        player_hitbox.centerx = player.x+13
+        player_hitbox.centery = player.y+13
+
 
         for x in enemies:
             x.handleMovement(poweredUp, player)
