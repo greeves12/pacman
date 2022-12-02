@@ -11,6 +11,8 @@ class Enemy():
     level = board.boards
     startX = 380
     startY = 255
+    dead = False
+    deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
 
     def __init__(self, randomMove, imgage):
         self.x = 380
@@ -20,10 +22,13 @@ class Enemy():
         self.changeMultiplier = 3
         self.randomMoveChance = randomMove
         
+    def swapToDead(self):
+        self.img = self.deadImg
 
     def restart(self):
         self.x = self.startX
         self.y = self.startY
+
     def swapToPowerup(self):
         self.img = self.powerUpImage
     
@@ -73,7 +78,7 @@ class Enemy():
                         elif self.turns[1]:
                             self.direction =1
                 #Chase the player
-                elif player.x > self.x:
+                elif player.x+30 > self.x:
                     if self.turns[0]: #attempt to move enemy right
                         self.direction = 0
                     elif player.y > self.y:
@@ -83,7 +88,7 @@ class Enemy():
                         if self.turns[2]:
                             self.direction = 2
                 
-                elif player.x <= self.x:
+                elif player.x-30 <= self.x:
                     
                     if self.turns[1]: #attempt to move enemy left                
                         self.direction = 1 

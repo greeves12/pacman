@@ -40,7 +40,7 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
-levelCount = 1
+levelCount = 5
 
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
@@ -184,7 +184,11 @@ def checkCollisions(player, enemies, poweredUp):
                 collision = True
                 break
         else:
-            enemy.swapToPowerup()
+            if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
+                enemy.swapToDead()
+                enemy.dead = True
+                
+            
     
     return collision
 
@@ -253,7 +257,8 @@ def start_game():
 
         if poweredUp:
             for x in enemies:
-                x.swapToPowerup()
+                if not x.dead:
+                    x.swapToPowerup()
         
         genericBlit(player.x, player.y, player.img)
        
