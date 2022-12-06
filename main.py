@@ -29,12 +29,15 @@ dots_left = 246
 
 main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 score_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 15)
+title_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 80)
 
 running = True
 flicker = False
 
 movementDirectionX = 0
 movementDirectionY = 0
+
+name = ""
 
 menuOption = 0 #0 for start, 1 for quit
 
@@ -326,8 +329,9 @@ def start_game():
 #This will be the main menu of the game
 
 over_font = main_font.render("START", True, (255, 255, 255))
+high_score = main_font.render("HIGH-SCORES", True, (255,255,255))
 end_font = main_font.render("QUIT", True, (255, 255, 255))
-
+title = title_font.render("pac-man", True, (220,250,0))
 
 while running:
     flicker = timer.get_status()
@@ -336,15 +340,15 @@ while running:
         keystate = pygame.key.get_pressed()
 
         if keystate[pygame.K_DOWN]:
-            if menuOption == 0:
-                menuOption = 1
+            if menuOption < 2:
+                menuOption += 1
         elif keystate[pygame.K_UP]:
-            if menuOption == 1:
-                menuOption = 0
+            if menuOption > 0:
+                menuOption -= 1
         elif keystate[pygame.K_RETURN]:
             if menuOption == 0:
                 timer.kill_thread()
-                start_game()
+                create_profile()
                 timer = myTimer.Timer(0.8)
             else:
                 timer.kill_thread()
@@ -357,14 +361,99 @@ while running:
             sys.exit()
 
     screen.fill((0,0,0))
+    screen.blit(title, (210,150))
 
-    if flicker == False and menuOption == 1:
-        screen.blit(over_font, (320,300))
+    if flicker == False and menuOption == 2:
+        screen.blit(over_font, (350,300))
+        screen.blit(high_score, (350, 400))
     elif flicker == False and menuOption == 0:
-        screen.blit(end_font, (320,400))
+        screen.blit(end_font, (350,500))
+        screen.blit(high_score, (350, 400))
+    elif flicker == False and menuOption == 1:
+        screen.blit(over_font, (350,300))
+        screen.blit(end_font, (350,500))
     else:
-        screen.blit(over_font, (320,300))
-        screen.blit(end_font, (320,400))
+        screen.blit(over_font, (350,300))
+        screen.blit(end_font, (350,500))
+        screen.blit(high_score, (350, 400))
    
     pygame.display.update()
     clock.tick(60)
+
+
+
+
+    def create_profile():
+        global name
+
+        firstChar = ''
+        secondChar = ''
+        thirdChar = ''
+        index = 0
+
+        title = main_font.render("Enter a name", True, (255,255,255))
+        f_und = main_font.render("_", True, (255,255,255))
+        enter = main_font.render("Enter to continue", True, (255,255,255))
+
+        b = False
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    keystate = pygame.key.get_pressed()
+                    if keystate[pygame.K_RETURN]:
+                        if index == 3:
+                            name = name + firstChar + secondChar + thirdChar
+                            start_game()
+                            with open("./data/data.txt", 'w') as f:
+                                f.write(name + f":{score}")
+                                
+                            b = True
+                            break
+                    elif keystate[pygame.K_BACKSPACE]:
+                        if index == 3:
+                            thirdChar = ' '
+                        elif index == 2:
+                            secondChar = ' '
+                        elif index == 1:
+                            firstChar = ' '
+                        if index > 0 :
+                            index -=1
+                    else:
+                        if event.unicode.isalpha():
+                            if index == 0:
+                                firstChar = event.unicode
+                            elif index == 1:
+                                secondChar = event.unicode
+                            elif index == 2:
+                                thirdChar = event.unicode
+                            if index < 3:
+                                index+=1
+                            
+
+                if event.type == pygame.QUIT:
+                    timer.kill_thread()
+                    pygame.quit()
+                    sys.exit()
+
+            if b:
+                break
+
+            screen.fill((0,0,0))
+            screen.blit(title, (320,200))
+            screen.blit(f_und, (400,400))
+            screen.blit(f_und, (440,400))
+            screen.blit(f_und, (480,400))
+
+            f_ch = main_font.render(firstChar, True, (255,255,255))
+            s_ch = main_font.render(secondChar, True, (255,255,255))
+            t_ch = main_font.render(thirdChar, True, (255,255,255))
+
+            screen.blit(f_ch, (400, 380))
+            screen.blit(s_ch, (440, 380))
+            screen.blit(t_ch, (480, 380))
+
+            if index == 3:
+                screen.blit(enter, (420, 500))
+
+            pygame.display.update()
+            clock.tick(60)
