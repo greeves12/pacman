@@ -28,6 +28,7 @@ score = 0
 dots_left = 246
 
 main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
+score_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 15)
 
 running = True
 flicker = False
@@ -55,7 +56,7 @@ def genericBlit(x, y, img):
     screen.blit(img, (x,y))
 
 def draw_board():
-    global dots_left, poweredUp
+    global dots_left, poweredUp, score
     color = (0, 0, 255)
     num1 = ((height - 50) // 32) # This is because there are 32 tiles in each columnn
     num2 = (width // 30) # This is because there are 30 tiles in each row
@@ -72,6 +73,8 @@ def draw_board():
                     level[i][j] = 0
                     loaded_eating_sounds.append((math.floor(x), math.floor(y)))
                     dots_left -= 1
+                    score+=10
+                    
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
             if level[i][j] == 2:
@@ -122,7 +125,7 @@ def draw_board():
 
 
 def end_game():
-    global level, levelCount, dots_left, player_lives
+    global level, levelCount, dots_left, player_lives, score
     restart = False
 
     while not restart:
@@ -143,6 +146,7 @@ def end_game():
     player_lives = 3
     level = copy.deepcopy(board.boards)
     levelCount = 1
+    score = 0
     player.restart()
 
     for enemy in enemies:
@@ -208,15 +212,21 @@ def checkCollisions(player, enemies, poweredUp):
     
     return collision
 
+
+
+
 def start_game():
     global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
     level = copy.deepcopy(board.boards)
+    
 
     while gameLoop:  
-         
+        score_ft = main_font.render(f"SCORE: {score}", False, (255,255,255))
+        live_score = main_font.render("Lives: ", True, (255,255,255))
+        paclife = score_font.render("c", False, (220,255,0))
         flicker = timer.get_status()
 
 
@@ -292,6 +302,15 @@ def start_game():
                         x.swapToNormal()
         
         genericBlit(player.x, player.y, player.img)
+        screen.blit(score_ft, (50,920))
+        screen.blit(live_score, (500, 920))
+
+        neX = 650
+        neY = 925
+        for x in range(player_lives):
+            screen.blit(paclife, (neX, neY))
+            neX+=30
+        
        
         for x in enemies:
             genericBlit(x.x, x.y, x.img)
@@ -308,6 +327,7 @@ def start_game():
 
 over_font = main_font.render("START", True, (255, 255, 255))
 end_font = main_font.render("QUIT", True, (255, 255, 255))
+
 
 while running:
     flicker = timer.get_status()
