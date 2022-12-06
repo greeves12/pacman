@@ -89,7 +89,7 @@ def draw_board():
                         if not (enemy.powerUpTimer is None):
                             enemy.powerUpTimer.kill_thread()
                         
-                        enemy.powerUpTimer = myTimer.Timer(2)
+                        enemy.powerUpTimer = myTimer.Timer(7)
                         enemy.powerUpTimer.start_timer()
                         
 

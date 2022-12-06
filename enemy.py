@@ -73,7 +73,46 @@ class Enemy():
             if not self.powerUpTimer is None:
                 #Run away from the player
                 
-                False
+                if equal < 3:
+                    if player.y > self.y:
+                        if self.turns[2]:
+                            self.direction = 2
+                        elif self.turns[1]:
+                            self.direction = 1
+                    else:
+                        if self.turns[3]:
+                            self.direction = 3
+                        elif self.turns[0]:
+                            self.direction =0
+                #Chase the player
+                elif player.x+30 > self.x:
+                    if self.turns[1]: #attempt to move enemy right
+                        self.direction = 1
+                    elif player.y > self.y:
+                        if self.turns[2]:
+                            self.direction = 2
+                    else:
+                        if self.turns[3]:
+                            self.direction = 3
+                        else:
+                            self.direction = 0
+                
+                elif player.x-30 <= self.x:
+                    
+                    if self.turns[0]: #attempt to move enemy left                
+                        self.direction = 0 
+                    elif player.y > self.y:
+                        
+                        if self.turns[2]:
+                            self.direction = 2
+                        elif self.turns[1]:
+                            self.direction = 1
+                        else:
+                            self.direction = 3
+
+                    else:
+                        if self.turns[3]:
+                            self.direction = 3  
 
 
             else:           
