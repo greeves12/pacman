@@ -17,6 +17,7 @@ class Timer():
         self.thread = threading.Thread(target=self.__start_timer2)
         self.thread.start()
     
+
     def __start_timer2(self):
         while True:
             if self.breakThread:

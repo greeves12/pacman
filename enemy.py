@@ -1,6 +1,7 @@
 import pygame
 import board
 import random
+import myTimer
 
 class Enemy():
 
@@ -13,6 +14,8 @@ class Enemy():
     startY = 255
     dead = False
     deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
+    powerUpTimer = None
+    deadTimer = None
 
     def __init__(self, randomMove, imgage):
         self.x = 380
@@ -22,6 +25,10 @@ class Enemy():
         self.changeMultiplier = 3
         self.randomMoveChance = randomMove
         
+
+    def reset(self):
+        self.x = self.startX
+        self.y = self.startY
     def swapToDead(self):
         self.img = self.deadImg
 
@@ -31,11 +38,12 @@ class Enemy():
 
     def swapToPowerup(self):
         self.img = self.powerUpImage
+        
     
     def swapToNormal(self):
         self.img = self.normalImage
     
-    def handleMovement(self, powerUp, player):
+    def handleMovement(self, player):
         doRandom = False
 
         newTurns = self.turns
@@ -62,9 +70,12 @@ class Enemy():
             if equal < 0:
                 equal = equal * -1
 
-            if powerUp:
+            if not self.powerUpTimer is None:
                 #Run away from the player
+                
                 False
+
+
             else:           
                 if equal < 3:
                     if player.y > self.y:
@@ -127,8 +138,7 @@ class Enemy():
         if self.x < 20:
            self.x = 820
         elif self.x > 820:
-            self.x = 20       
-
+            self.x = 20      
             
 
     def check_position(self, centerx, centery):

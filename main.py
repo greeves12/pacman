@@ -40,7 +40,7 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
-levelCount = 5
+levelCount = 1
 
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
@@ -84,6 +84,15 @@ def draw_board():
                     pygame.display.update()
                     time.sleep(1)
                     poweredUp = True
+
+                    for enemy in enemies:
+                        if not (enemy.powerUpTimer is None):
+                            enemy.powerUpTimer.kill_thread()
+                        
+                        enemy.powerUpTimer = myTimer.Timer(2)
+                        enemy.powerUpTimer.start_timer()
+                        
+
                     
                 elif not flicker:
                     pygame.draw.circle(screen, 'white', (x, y), 10)
@@ -179,7 +188,7 @@ def checkCollisions(player, enemies, poweredUp):
         enemyY1 = enemy.y
         enemyY2 = enemy.y + 26
 
-        if not poweredUp:
+        if enemy.powerUpTimer is None and not enemy.dead:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 collision = True
                 break
@@ -187,13 +196,20 @@ def checkCollisions(player, enemies, poweredUp):
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 enemy.swapToDead()
                 enemy.dead = True
+                if not (enemy.powerUpTimer is None):
+                    enemy.powerUpTimer.kill_thread()
+                    enemy.powerUpTimer = None
+
+                    enemy.deadTimer = myTimer.Timer(2)
+                    enemy.deadTimer.start_timer()
+                    
                 
             
     
     return collision
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
@@ -239,8 +255,16 @@ def start_game():
         player_hitbox.centery = player.y+13
 
 
+
         for x in enemies:
-            x.handleMovement(poweredUp, player)
+            if not (x.powerUpTimer is None):
+                if x.powerUpTimer.get_status() == True:
+                    
+                    x.powerUpTimer.kill_thread()
+                    x.powerUpTimer = None
+                    x.swapToNormal()
+
+            x.handleMovement(player)
        
 
         if checkCollisions(player, enemies, poweredUp):
@@ -257,8 +281,15 @@ def start_game():
 
         if poweredUp:
             for x in enemies:
-                if not x.dead:
+                if not x.dead and not (x.powerUpTimer is None):
                     x.swapToPowerup()
+                
+                elif not x.deadTimer is None:
+                    if x.deadTimer.get_status():
+                        x.deadTimer.kill_thread()
+                        x.deadTimer = None
+                        x.dead = False
+                        x.swapToNormal()
         
         genericBlit(player.x, player.y, player.img)
        
