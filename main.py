@@ -131,6 +131,9 @@ def end_game():
     global level, levelCount, dots_left, player_lives, score
     restart = False
 
+    title1 = title_font.render("GAME OVER", True, (200, 250,0))
+    title2 = title_font.render("PRESS ENTER", True, (255,255,255))
+
     while not restart:
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
@@ -138,10 +141,12 @@ def end_game():
                 restart = True
 
             if event.type == pygame.QUIT:
-                pygame.QUIT
+                pygame.quit()
                 sys.exit()
         
         screen.fill((0,0,0))
+        screen.blit(title1, (100,300))
+        screen.blit(title2, (100, 500))
         pygame.display.update()
         clock.tick(60)
 
@@ -149,7 +154,7 @@ def end_game():
     player_lives = 3
     level = copy.deepcopy(board.boards)
     levelCount = 1
-    score = 0
+    
     player.restart()
 
     for enemy in enemies:
@@ -166,7 +171,7 @@ def next_level():
                 proceed = True
 
             if event.type == pygame.QUIT:
-                pygame.QUIT
+                pygame.quit()
                 sys.exit()
         screen.fill((0,0,0))
         pygame.display.update()
@@ -219,11 +224,12 @@ def checkCollisions(player, enemies, poweredUp):
 
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
     level = copy.deepcopy(board.boards)
+    score = 0
     
 
     while gameLoop:  
@@ -257,16 +263,9 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
-        gameOver = True
-        for x in range(len(level)):
-            for y in range(len(level[x])):
-                if level[x][y] == 1 or level[x][y] == 2:
-                    gameOver = False
-
         player.handle_movement(movementDirectionX, movementDirectionY)
         player_hitbox.centerx = player.x+13
         player_hitbox.centery = player.y+13
-
 
 
         for x in enemies:
@@ -285,6 +284,7 @@ def start_game():
             player.restart()
 
         if player_lives == 0:
+            timer.kill_thread()
             end_game()
             break
 
@@ -349,7 +349,8 @@ while running:
             if menuOption == 0:
                 timer.kill_thread()
                 create_profile()
-                timer = myTimer.Timer(0.8)
+                timer = myTimer.Timer(0.3)
+                timer.start_timer()
             else:
                 timer.kill_thread()
                 pygame.quit()
@@ -404,9 +405,15 @@ while running:
                         if index == 3:
                             name = name + firstChar + secondChar + thirdChar
                             start_game()
-                            with open("./data/data.txt", 'w') as f:
-                                f.write(name + f":{score}")
+                            with open("./data/data.txt", "a+") as file_object:
+                                # Move read cursor to the start of file.
+                                file_object.seek(0)
                                 
+                                data = file_object.read(100)
+                                if len(data) > 0 :
+                                    file_object.write("\n")
+                                
+                                file_object.write(name + f":{score}")
                             b = True
                             break
                     elif keystate[pygame.K_BACKSPACE]:
