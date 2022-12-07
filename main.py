@@ -130,7 +130,6 @@ def draw_board():
 
 def load_scores():
     global highscores
-
     
     with open("./data/data.txt", 'r') as f:
         lines = f.readlines()
@@ -145,8 +144,8 @@ def load_scores():
         highscores = sorted(highscores, key=lambda x: x[1])
         f.close()
 
-def high_score_screen():
-    global highscores
+
+
 
 def end_game():
     global level, levelCount, dots_left, player_lives, score
@@ -181,6 +180,39 @@ def end_game():
     for enemy in enemies:
         enemy.restart()
     
+def high_score_screen():
+    global highscores
+    running = True
+
+    highscore_title = pygame.font.Font("./fonts/PAC-FONT.ttf", 40)
+    regularscore = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
+
+    screen_index = 1
+
+    title = highscore_title.render("HIGH-SCORES", True, (200,250,0))
+
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+        
+
+        screen.fill((0,0,0))
+        screen.blit(title, (270,100))
+        
+
+        number = 1
+        y_coord = 180
+        for x in highscores:
+            if number >= 10:
+                break
+            spot = regularscore.render(f"{number}. {x[0]}        {x[1]}", True, (255,255,255))
+            
+        
+        pygame.display.update()
+        clock.tick(60)
+
 def next_level():
     global level, levelCount, dots_left
     proceed = False
@@ -374,6 +406,7 @@ while running:
                 timer.start_timer()
             elif menuOption == 1:
                 load_scores()
+                high_score_screen()
             else:
                 timer.kill_thread()
                 pygame.quit()
