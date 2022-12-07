@@ -46,6 +46,8 @@ timer.start_timer()
 
 levelCount = 1
 
+highscores = []
+
 player = player.Player()
 player_hitbox = pygame.draw.circle(screen, (0,0,0), (player.x+13, player.y+13), 13)
 
@@ -126,6 +128,25 @@ def draw_board():
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
 
 
+def load_scores():
+    global highscores
+
+    
+    with open("./data/data.txt", 'r') as f:
+        lines = f.readlines()
+        highscores.clear()
+        for x in range(len(lines)):
+            n = lines[x].strip()
+            tup = n.split(":")
+            tup = (tup[0], tup[1])
+            highscores.append(tup)
+            
+
+        highscores = sorted(highscores, key=lambda x: x[1])
+        f.close()
+
+def high_score_screen():
+    global highscores
 
 def end_game():
     global level, levelCount, dots_left, player_lives, score
@@ -351,6 +372,8 @@ while running:
                 create_profile()
                 timer = myTimer.Timer(0.3)
                 timer.start_timer()
+            elif menuOption == 1:
+                load_scores()
             else:
                 timer.kill_thread()
                 pygame.quit()
