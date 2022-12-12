@@ -141,7 +141,7 @@ def load_scores():
             highscores.append(tup)
             
 
-        highscores = sorted(highscores, key=lambda x: x[1])
+        highscores = sorted(highscores, key=lambda x: x[1], reverse=True)
         f.close()
 
 
@@ -208,6 +208,9 @@ def high_score_screen():
             if number >= 10:
                 break
             spot = regularscore.render(f"{number}. {x[0]}        {x[1]}", True, (255,255,255))
+            screen.blit(spot, (230, y_coord))
+            y_coord+=50
+            number+=1
             
         
         pygame.display.update()
