@@ -10,16 +10,16 @@ class Enemy():
     turns = [False,False,False,False]
     direction = 0
     level = board.boards
-    startX = 380
-    startY = 255
+    startX = 450 #380
+    startY = 450 #355
     dead = False
     deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
     powerUpTimer = None
     deadTimer = None
 
     def __init__(self, randomMove, imgage):
-        self.x = 380
-        self.y = 255
+        self.x = self.startX
+        self.y = self.startY
         self.normalImage = imgage
         self.img = self.normalImage
         self.changeMultiplier = 3

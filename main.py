@@ -37,6 +37,8 @@ flicker = False
 movementDirectionX = 0
 movementDirectionY = 0
 
+gateFlag = True
+
 name = ""
 
 menuOption = 0 #0 for start, 1 for quit
@@ -124,8 +126,12 @@ def draw_board():
                                 [(j * num2 - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3 * PI / 2,
                                 2 * PI, 3)
             if level[i][j] == 9:
-                pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
+                if gateFlag:
+                    level[i][j] = 0
+                else:
+                    pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
+                                
 
 
 def load_scores():
@@ -137,11 +143,12 @@ def load_scores():
         for x in range(len(lines)):
             n = lines[x].strip()
             tup = n.split(":")
-            tup = (tup[0], tup[1])
+            tup = (tup[0], int(tup[1]))
             highscores.append(tup)
             
-
+        
         highscores = sorted(highscores, key=lambda x: x[1], reverse=True)
+        
         f.close()
 
 
@@ -193,6 +200,11 @@ def high_score_screen():
 
     while running:
         for event in pygame.event.get():
+            keystate = pygame.key.get_pressed()
+
+            if keystate[pygame.K_BACKSPACE]:
+                running = False
+                break
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -280,13 +292,16 @@ def checkCollisions(player, enemies, poweredUp):
 
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
     level = copy.deepcopy(board.boards)
     score = 0
     
+    gateTimer = myTimer.Timer(5)
+    gateTimer.start_timer()
+    gateFlag = False
 
     while gameLoop:  
         score_ft = main_font.render(f"SCORE: {score}", False, (255,255,255))
@@ -294,6 +309,9 @@ def start_game():
         paclife = score_font.render("c", False, (220,255,0))
         flicker = timer.get_status()
 
+        if gateTimer.get_status():
+            gateTimer.kill_thread()
+            gateFlag = True
 
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
@@ -408,8 +426,11 @@ while running:
                 timer = myTimer.Timer(0.3)
                 timer.start_timer()
             elif menuOption == 1:
+                timer.kill_thread()
                 load_scores()
                 high_score_screen()
+                timer = myTimer.Timer(0.3)
+                timer.start_timer()
             else:
                 timer.kill_thread()
                 pygame.quit()
