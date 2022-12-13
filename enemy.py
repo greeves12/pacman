@@ -121,10 +121,13 @@ class Enemy():
 
 
             else:      
-                print(self.direction)  
+                
                 if self.direction == 0 or self.direction == 1:
+                    
                     if self.turns[self.direction]:
+                        
                         if self.turns[2] and self.turns[3]:
+                            
                             pythTop = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
                             pythBottom = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
 
@@ -143,14 +146,41 @@ class Enemy():
                             elif pythCur == pythMin:
                                 self.direction = self.direction
                             else:
+                                
                                 self.direction = 3
 
                         elif self.turns[2]:
-                            self.direction = 2
+
+                            pythTop = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
+                            pythCur = 0
+
+                            if self.direction == 0:
+                                pythCur = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                            else:
+                                pythCur = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+
+
+                            if pythCur >= pythTop:
+                                self.direction = 2
+                            else:
+                                self.direction = self.direction  
                         else:
-                            self.direction = 3
+                            pythTop = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
+                            pythCur = 0
+
+                            if self.direction == 0:
+                                pythCur = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                            else:
+                                pythCur = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+
+
+                            if pythCur >= pythTop:
+                                self.direction = 3
+                            else:
+                                self.direction = self.direction  
                     
                     elif self.turns[2] and self.turns[3]:
+                        
                         pythTop = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
                         pythBottom = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
 
@@ -161,11 +191,60 @@ class Enemy():
                     elif self.turns[2]:
                         self.direction = 2
                     else:
+                        
                         self.direction = 3
 
                 elif self.direction == 2 or self.direction == 3:
                     if self.turns[self.direction]:
-                        True
+                        if self.turns[0] and self.turns[1]:
+                            pythTop = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                            pythBottom = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+
+                            pythCur = 0
+
+                            if self.direction == 2:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
+                            else:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
+
+                            pythMin = min(pythCur, pythTop, pythBottom)
+
+
+                            if pythTop == pythMin:
+                                self.direction = 0
+                            elif pythCur == pythMin:
+                                self.direction = self.direction
+                            else:
+                                self.direction = 1
+
+                        elif self.turns[0]:
+                            pythRight = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                            pythCur = 0
+
+                            if self.direction == 2:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
+                            else:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
+                            
+                            if pythCur >= pythRight:
+                                self.direction = 0
+                            else:
+                                self.direction = self.direction
+
+                        else:
+                            pythLeft = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                            pythCur = 0
+
+                            if self.direction == 2:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
+                            else:
+                                pythCur = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
+                            
+                            if pythCur >= pythLeft:
+                                self.direction = 1
+                            else:
+                                self.direction = self.direction
+
                     elif self.turns[0] and self.turns[1]:
                         pythTop = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
                         pythBottom = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
@@ -178,7 +257,11 @@ class Enemy():
                         self.direction = 0
                     else:
                         self.direction = 1
-                        
+                if doRandom:
+                    rando = random.randint(0,3)
+                    while self.turns[rando] == False:
+                        rando = random.randint(0,3)
+                    self.direction = rando        
                 
                 
 
