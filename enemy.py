@@ -12,12 +12,13 @@ class Enemy():
     turns = [False,False,False,False]
     direction = 0
     level = board.boards
-    startX = 280 #380
+    startX = 300 #380
     startY = 255 #255
     dead = False
     deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
     powerUpTimer = None
     deadTimer = None
+    oldTurn = 0
 
     def __init__(self, randomMove, imgage):
         self.x = self.startX
@@ -50,15 +51,19 @@ class Enemy():
         
         nextTurn = self.check_position(self.x+13, self.y+13)
 
-        if self.direction == 0 or self.direction == 1:
-            if nextTurn[3] or nextTurn[2]:
-                self.doNewTurn = True
-        elif self.direction == 2 or self.direction == 3:
-            if nextTurn[0] or nextTurn[1]:
-                self.doNewTurn = True
+        if not self.doNewTurn:
+            if self.direction == 0 or self.direction == 1:
+                if nextTurn[3] or nextTurn[2]:
+                    if nextTurn != self.oldTurn:
+                        self.doNewTurn = True
+            elif self.direction == 2 or self.direction == 3:
+                if nextTurn[0] or nextTurn[1]:
+                    if nextTurn != self.oldTurn:
+                        self.doNewTurn = True
 
         if self.doNewTurn:
             self.doNewTurn = False
+            self.oldTurn = nextTurn
             self.turns = nextTurn
             randomMove = random.randrange(1,100)
       

@@ -41,7 +41,7 @@ class Player():
 
     def handle_movement(self, movementX, movementY):
         self.turns = self.check_position(self.x+13, self.y+13)
-
+        
 
         oldDir = self.direction
 
