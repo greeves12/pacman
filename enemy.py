@@ -2,16 +2,18 @@ import pygame
 import board
 import random
 import myTimer
+import math
 
 class Enemy():
 
+    doNewTurn = True
     powerUpImage = pygame.transform.scale(pygame.image.load("./assets/powerup.png"), (26,26))
     normalImage = pygame.transform.scale( pygame.image.load("./assets/red.png"), (26,26))
     turns = [False,False,False,False]
     direction = 0
     level = board.boards
-    startX = 450 #380
-    startY = 450 #355
+    startX = 280 #380
+    startY = 255 #255
     dead = False
     deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
     powerUpTimer = None
@@ -45,20 +47,18 @@ class Enemy():
     
     def handleMovement(self, player):
         doRandom = False
-
-        newTurns = self.turns
-        if self.direction == 0:
-            self.turns[0] = True
-        elif self.direction == 1:
-            self.turns[1] = True
-        elif self.direction == 2:
-            self.turns[2] = True
-        elif self.direction == 3:
-            self.turns[3] = True
         
         nextTurn = self.check_position(self.x+13, self.y+13)
 
-        if nextTurn != newTurns:
+        if self.direction == 0 or self.direction == 1:
+            if nextTurn[3] or nextTurn[2]:
+                self.doNewTurn = True
+        elif self.direction == 2 or self.direction == 3:
+            if nextTurn[0] or nextTurn[1]:
+                self.doNewTurn = True
+
+        if self.doNewTurn:
+            self.doNewTurn = False
             self.turns = nextTurn
             randomMove = random.randrange(1,100)
       
@@ -115,48 +115,41 @@ class Enemy():
                             self.direction = 3  
 
 
-            else:           
-                if equal < 3:
-                    if player.y > self.y:
-                        if self.turns[3]:
+            else:        
+                if self.direction == 0 or self.direction == 1:
+                    if self.turns[2] and self.turns[3]:
+                        pythTop = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y-10 - player.y, 2)))
+                        pythBottom = math.sqrt( (math.pow(self.x - player.x, 2)) + (math.pow(self.y+10 - player.y, 2)))
+
+                        if pythTop >= pythBottom:
+                            self.direction = 2
+                        else:
                             self.direction = 3
-                        elif self.turns[0]:
+                    elif self.turns[2]:
+                        self.direction = 2
+                    else:
+                        self.direction = 3
+
+                elif self.direction == 2 or self.direction == 3:
+                    if self.turns[0] and self.turns[1]:
+                        pythTop = math.sqrt( (math.pow(self.x+10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+                        pythBottom = math.sqrt( (math.pow(self.x-10 - player.x, 2)) + (math.pow(self.y - player.y, 2)))
+
+                        if pythTop >= pythBottom:
                             self.direction = 0
-                    else:
-                        if self.turns[2]:
-                            self.direction = 2
-                        elif self.turns[1]:
-                            self.direction =1
-                #Chase the player
-                elif player.x+30 > self.x:
-                    if self.turns[0]: #attempt to move enemy right
+                        else:
+                            self.direction = 1
+                    elif self.turns[0]:
                         self.direction = 0
-                    elif player.y > self.y:
-                        if self.turns[3]:
-                            self.direction = 3
                     else:
-                        if self.turns[2]:
-                            self.direction = 2
-                
-                elif player.x-30 <= self.x:
-                    
-                    if self.turns[1]: #attempt to move enemy left                
-                        self.direction = 1 
-                    elif player.y > self.y:
+                        self.direction = 1
                         
-                        if self.turns[3]:
-                            self.direction = 3
-
-                    else:
-                        if self.turns[2]:
-                            self.direction = 2   
-
-
                 if doRandom:
                     rando = random.randint(0,3)
                     while self.turns[rando] == False:
                         rando = random.randint(0,3)
                     self.direction = rando
+                
 
 
         if self.direction == 0 and self.turns[0]:
