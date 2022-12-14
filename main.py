@@ -9,6 +9,7 @@ import enemy
 import copy
 
 pygame.init()
+pygame.mixer.pre_init(44100, -16, 2, 512)
 
 clock = pygame.time.Clock()
 
@@ -126,10 +127,8 @@ def draw_board():
                                 [(j * num2 - (num2 * 0.4)) - 2, (i * num1 - (0.4 * num1)), num2, num1], 3 * PI / 2,
                                 2 * PI, 3)
             if level[i][j] == 9:
-                if gateFlag:
-                    level[i][j] = 0
-                else:
-                    pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
+                
+                pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
                                 
 
@@ -276,12 +275,7 @@ def checkCollisions(player, enemies, poweredUp):
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 enemy.swapToDead()
                 enemy.dead = True
-                if not (enemy.powerUpTimer is None):
-                    enemy.powerUpTimer.kill_thread()
-                    enemy.powerUpTimer = None
-
-                    enemy.deadTimer = myTimer.Timer(2)
-                    enemy.deadTimer.start_timer()
+                
                     
                 
             
