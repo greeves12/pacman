@@ -35,7 +35,8 @@ class Enemy():
         self.changeMultiplier = 3
         self.randomMoveChance = randomMove
         self.direct = random.choice(self.list)
-        
+        self.timerToMove = myTimer.Timer(5)
+        self.timerToMove.start_timer()
         
 
     def reset(self):
@@ -56,10 +57,13 @@ class Enemy():
         self.img = self.normalImage
     
     def enterSpawnAnimation(self):
-        if not (self.y >= 440 and self.y <= 445):
+        if not (self.y >= 439 and self.y <= 445):
             self.y += 1 * self.changeMultiplier
+        else:
             self.spawnAnimation = False
             self.inSpawn = True
+            self.timerToMove = myTimer.Timer(5)
+            self.timerToMove.start_timer()
 
 
 
@@ -67,7 +71,7 @@ class Enemy():
         x = 440
         y = 340
 
-        if (self.x >= 440 and self.x <= 442) and (self.y >= 340 and self.y <= 342):
+        if (self.x >= 439 and self.x <= 442) and (self.y >= 339 and self.y <= 342):
             self.dead = False
             self.swapToNormal()
             self.spawnAnimation = True
@@ -247,7 +251,11 @@ class Enemy():
 
     
     def moveInSpawn(self):
-        
+        if self.timerToMove.get_status():
+            self.timerToMove.kill_thread()
+            self.moveOut = True
+            self.inSpawn = False
+
         if self.x > 460:
             self.direct *= -1
             
@@ -262,8 +270,9 @@ class Enemy():
         elif self.x > 440:
             self.x -= 1
         else:
-            if self.y < 340:
-                self.y += 1
+            if self.y > 339:
+                self.y -= 1
+            else:
                 self.moveOut = False 
         
 
