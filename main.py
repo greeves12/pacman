@@ -97,11 +97,12 @@ def draw_board():
                     poweredUp = True
 
                     for enemy in enemies:
-                        if not (enemy.powerUpTimer is None):
-                            enemy.powerUpTimer.kill_thread()
-                        
-                        enemy.powerUpTimer = myTimer.Timer(7)
-                        enemy.powerUpTimer.start_timer()
+                        if not (enemy.dead) and  not enemy.inSpawn:
+                            if not (enemy.powerUpTimer is None):
+                                enemy.powerUpTimer.kill_thread()
+                            
+                            enemy.powerUpTimer = myTimer.Timer(7)
+                            enemy.powerUpTimer.start_timer()
                         
 
                     

@@ -24,6 +24,7 @@ class Enemy():
     list = [-1,1]
     direct = 1
     moveOut = False
+    changeMultiplier = 3
 
     timerToMove = None
 
@@ -278,6 +279,10 @@ class Enemy():
 
     def handleMovement(self, player):
         doRandom = False
+        self.changeMultiplier = 3
+        
+        if not self.powerUpTimer is None:
+            self.changeMultiplier = 2 
 
         if self.spawnAnimation:
             self.enterSpawnAnimation()
@@ -315,56 +320,17 @@ class Enemy():
       
             if (randomMove <= (self.randomMoveChance*100)) and (randomMove >= 0):
                 doRandom = True
-
-            equal = player.x - self.x
-
-            if equal < 0:
-                equal = equal * -1
-
+            
             if not self.powerUpTimer is None:
                 #Run away from the player
+
                 
-                if equal < 3:
-                    if player.y > self.y:
-                        if self.turns[2]:
-                            self.direction = 2
-                        elif self.turns[1]:
-                            self.direction = 1
-                    else:
-                        if self.turns[3]:
-                            self.direction = 3
-                        elif self.turns[0]:
-                            self.direction =0
-                #Chase the player
-                elif player.x+30 > self.x:
-                    if self.turns[1]: #attempt to move enemy right
-                        self.direction = 1
-                    elif player.y > self.y:
-                        if self.turns[2]:
-                            self.direction = 2
-                    else:
-                        if self.turns[3]:
-                            self.direction = 3
-                        else:
-                            self.direction = 0
+                rando = random.randint(0,3)
                 
-                elif player.x-30 <= self.x:
+                while self.turns[rando] == False :
+                    rando = random.randint(0,3)
                     
-                    if self.turns[0]: #attempt to move enemy left                
-                        self.direction = 0 
-                    elif player.y > self.y:
-                        
-                        if self.turns[2]:
-                            self.direction = 2
-                        elif self.turns[1]:
-                            self.direction = 1
-                        else:
-                            self.direction = 3
-
-                    else:
-                        if self.turns[3]:
-                            self.direction = 3  
-
+                self.direction = rando  
 
             else:      
                 
@@ -511,7 +477,7 @@ class Enemy():
                 
                 
 
-
+        
         if self.direction == 0 and self.turns[0]:
             self.x += 1 * self.changeMultiplier
        
