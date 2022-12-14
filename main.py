@@ -275,6 +275,7 @@ def checkCollisions(player, enemies, poweredUp):
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 enemy.swapToDead()
                 enemy.dead = True
+                enemy.powerUpTimer = None
                 
                     
                 
@@ -364,6 +365,7 @@ def start_game():
             for x in enemies:
                 if not x.dead and not (x.powerUpTimer is None):
                     x.swapToPowerup()
+                    
                 
                 elif not x.deadTimer is None:
                     if x.deadTimer.get_status():

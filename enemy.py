@@ -13,21 +13,29 @@ class Enemy():
     direction = 0
     level = board.boards
     startX = 440 #440
-    startY = 340 #340
+    startY = 440 #340
     dead = False
     deadImg = pygame.transform.scale(pygame.image.load("./assets/dead.png"), (26,26))
     powerUpTimer = None
     deadTimer = None
     oldTurn = 0
-    
+    spawnAnimation = False
+    inSpawn = True
+    list = [-1,1]
+    direct = 1
+    moveOut = False
+
+    timerToMove = None
 
     def __init__(self, randomMove, imgage):
-        self.x = self.startX
+        self.x = random.randint(421, 459)
         self.y = self.startY
         self.normalImage = imgage
         self.img = self.normalImage
         self.changeMultiplier = 3
         self.randomMoveChance = randomMove
+        self.direct = random.choice(self.list)
+        
         
 
     def reset(self):
@@ -47,9 +55,23 @@ class Enemy():
     def swapToNormal(self):
         self.img = self.normalImage
     
+    def enterSpawnAnimation(self):
+        if not (self.y >= 440 and self.y <= 445):
+            self.y += 1 * self.changeMultiplier
+            self.spawnAnimation = False
+            self.inSpawn = True
+
+
+
     def returnToSpawn(self):
         x = 440
         y = 340
+
+        if (self.x >= 440 and self.x <= 442) and (self.y >= 340 and self.y <= 342):
+            self.dead = False
+            self.swapToNormal()
+            self.spawnAnimation = True
+            return
 
         nextTurn = self.check_position(self.x+13, self.y+13)
 
@@ -223,12 +245,45 @@ class Enemy():
         elif self.x > 820:
             self.x = 20
 
+    
+    def moveInSpawn(self):
+        
+        if self.x > 460:
+            self.direct *= -1
+            
+        elif self.x < 420:
+            self.direct *= -1
+
+        self.x += self.direct
+       
+    def moveOutOfSpawn(self):
+        if self.x < 440:
+            self.x += 1
+        elif self.x > 440:
+            self.x -= 1
+        else:
+            if self.y < 340:
+                self.y += 1
+                self.moveOut = False 
+        
+
     def handleMovement(self, player):
         doRandom = False
-        
+
+        if self.spawnAnimation:
+            self.enterSpawnAnimation()
+            return        
         
         if self.dead:
             self.returnToSpawn()
+            return
+        
+        if self.inSpawn:
+            self.moveInSpawn()
+            return
+
+        if self.moveOut:
+            self.moveOutOfSpawn()
             return
 
         nextTurn = self.check_position(self.x+13, self.y+13)
