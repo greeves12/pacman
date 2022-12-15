@@ -152,6 +152,27 @@ def load_scores():
         f.close()
 
 
+def reset_enemies():
+    for enemy in enemies:
+        enemy.dead = False
+        enemy.inSpawn = True
+        
+        if not enemy.powerUpTimer is None:
+            enemy.powerUpTimer.kill_thread()
+            enemy.powerUpTimer = None
+        
+        enemy.spawnAnimation = False
+        enemy.moveOut = False
+
+        if not enemy.deadTimer is None:
+            enemy.deadTimer.kill_thread()
+            enemy.deadTimer = None 
+        enemy.restart()
+        
+        if not enemy.timerToMove is None:
+            enemy.timerToMove.kill_thread()
+        enemy.timerToMove = myTimer.Timer(5)
+        enemy.timerToMove.start_timer()
 
 
 def end_game():
@@ -184,8 +205,7 @@ def end_game():
     
     player.restart()
 
-    for enemy in enemies:
-        enemy.restart()
+    reset_enemies()
     
 def high_score_screen():
     global highscores
@@ -251,8 +271,7 @@ def next_level():
     
     player.restart()
 
-    for enemy in enemies:
-        enemy.restart()
+    reset_enemies()
 
 def checkCollisions(player, enemies, poweredUp):
     collision = False
@@ -271,6 +290,7 @@ def checkCollisions(player, enemies, poweredUp):
         if enemy.powerUpTimer is None and not enemy.dead:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 collision = True
+                
                 break
         else:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
@@ -352,6 +372,7 @@ def start_game():
         if checkCollisions(player, enemies, poweredUp):
             player_lives -= 1
             player.restart()
+            reset_enemies()
 
         if player_lives == 0:
             timer.kill_thread()
