@@ -4,22 +4,22 @@ import math
 
 class Player():
     level = board.boards
-    direction = 0
+    direction = 2
     turns = [False, False, False, False] #right, left, up, down
     animation_counter = 0 #essentially circular list
     player_moving = False
     vetoTime = 5
     vetoDirection = -1
-    startX = 60
-    startY = 60
+    startX = 440
+    startY = 505
   
 
     player_images = [pygame.image.load("./assets/1.png"), pygame.image.load("./assets/2.png"), pygame.image.load("./assets/3.png"), pygame.image.load("./assets/4.png")]
 
     def __init__(self):
         
-        self.x = 60
-        self.y = 60
+        self.x = self.startX
+        self.y = self.startY
         self.x_change = 0
         self.changeMultiplier = 3
 
@@ -28,6 +28,7 @@ class Player():
     def restart(self):
         self.x = self.startX
         self.y = self.startY
+        self.direction = 2
 
     def change_player_img(self, direction, img):
         self.img = pygame.transform.scale(img, (26,26))

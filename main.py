@@ -18,6 +18,8 @@ width = 900
 PI = math.pi
 
 eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
+death_sound = pygame.mixer.Sound("./media/pacman_death.wav")
+eat_ghost = pygame.mixer.Sound("./media/pacman_eatghost.wav")
 
 loaded_eating_sounds = []
 
@@ -79,9 +81,10 @@ def draw_board():
             if level[i][j] == 1:
                 if point_calculator < (4 + 13):
                     level[i][j] = 0
-                    loaded_eating_sounds.append((math.floor(x), math.floor(y)))
+                    eating_dot_sound.play()
                     dots_left -= 1
                     score+=10
+
                     
                 else:
                     pygame.draw.circle(screen, 'white', (x, y), 4)
@@ -290,14 +293,14 @@ def checkCollisions(player, enemies, poweredUp):
         if enemy.powerUpTimer is None and not enemy.dead:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 collision = True
-                
+                death_sound.play()
                 break
         else:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 enemy.swapToDead()
                 enemy.dead = True
                 enemy.powerUpTimer = None
-                
+                eat_ghost.play()
                     
                 
             
@@ -368,11 +371,12 @@ def start_game():
 
             x.handleMovement(player)
        
-
+        coll = False
         if checkCollisions(player, enemies, poweredUp):
             player_lives -= 1
             player.restart()
             reset_enemies()
+            coll = True
 
         if player_lives == 0:
             timer.kill_thread()
@@ -412,7 +416,9 @@ def start_game():
         
         if dots_left == 0:
             next_level()
-            
+        
+        if coll:
+            time.sleep(2)
 
         pygame.display.update()
         clock.tick(60)
