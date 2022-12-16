@@ -62,6 +62,12 @@ enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/
 poweredUp = False
 player_lives = 3
 
+
+sound_effect_channel = pygame.mixer.Channel(0)
+player_death_channel = pygame.mixer.Channel(1)
+ghost_death_channel = pygame.mixer.Channel(2)
+
+
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
 
@@ -77,11 +83,17 @@ def draw_board():
             y = i * num1 + (0.5 * num1)
             point_calculator = math.sqrt((math.pow((player_hitbox.centerx - x), 2) + (math.pow((player_hitbox.centery - y), 2))))
             
+           
 
             if level[i][j] == 1:
                 if point_calculator < (4 + 13):
                     level[i][j] = 0
-                    eating_dot_sound.play()
+                    #sound_effect_channel.fadeout(3)
+                    
+                    sound_effect_channel.stop()
+                    sound_effect_channel.play(eating_dot_sound)
+                        
+
                     dots_left -= 1
                     score+=10
 
@@ -135,7 +147,7 @@ def draw_board():
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
                                 
-
+            
 
 def load_scores():
     global highscores
@@ -295,7 +307,7 @@ def checkCollisions(player, enemies, poweredUp):
                 collision = True
                 death_sound.play()
                 break
-        else:
+        elif not enemy.dead:
             if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
                 enemy.swapToDead()
                 enemy.dead = True
@@ -321,6 +333,9 @@ def start_game():
     gateTimer = myTimer.Timer(5)
     gateTimer.start_timer()
     gateFlag = False
+
+    for enemy in enemies:
+        enemy.timerToMove.start_timer()
 
     while gameLoop:  
         score_ft = main_font.render(f"SCORE: {score}", False, (255,255,255))

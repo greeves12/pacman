@@ -37,7 +37,7 @@ class Enemy():
         self.randomMoveChance = randomMove
         self.direct = random.choice(self.list)
         self.timerToMove = myTimer.Timer(5)
-        self.timerToMove.start_timer()
+       
         
 
     def reset(self):
