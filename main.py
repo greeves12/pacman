@@ -24,6 +24,7 @@ eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
 death_sound = pygame.mixer.Sound("./media/pacman_death.wav")
 eat_ghost = pygame.mixer.Sound("./media/pacman_eatghost.wav")
 siren = pygame.mixer.Sound("./media/pacman_siren.wav")
+theme = pygame.mixer.Sound("./media/pacman_theme.wav")
 
 loaded_eating_sounds = []
 
@@ -68,10 +69,11 @@ poweredUp = False
 player_lives = 3
 
 
-sound_effect_channel = pygame.mixer.Channel(0) #pacman eating sounds
+sound_effect_channel = pygame.mixer.Channel(0) #pacman eating sounds/menu music
 player_death_channel = pygame.mixer.Channel(1) #player death sound
 ghost_death_channel = pygame.mixer.Channel(2) #ghost death sound
 siren_sound = pygame.mixer.Channel(3)
+
 
 powerupTimer = None
 powerupOnField = False
@@ -282,8 +284,9 @@ def high_score_screen():
 def next_level():
     global level, levelCount, dots_left, powerupOnField, powerupTimer
     proceed = False
-
-    
+    nextLevel = pygame.font.Font("./fonts/ARCADE_I.ttf", 30)
+    text1 = nextLevel.render("Level Cleared!", True, (255,255,255))
+    text2 = nextLevel.render("<Enter to continue>", True, (255,255,255))
 
     while not proceed:
         for event in pygame.event.get():
@@ -295,6 +298,8 @@ def next_level():
                 pygame.quit()
                 sys.exit()
         screen.fill((0,0,0))
+        screen.blit(text1, (300,300))
+        screen.blit(text2, (250, 380))
         pygame.display.update()
         clock.tick(60)
     
@@ -335,7 +340,7 @@ def checkCollisions(player, enemies, poweredUp):
                 enemy.swapToDead()
                 enemy.dead = True
                 enemy.powerUpTimer = None
-                eat_ghost.play()
+                ghost_death_channel.play(eat_ghost)
                     
     return collision
 
@@ -420,7 +425,7 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
-        if dots_left < 245:
+        if dots_left < 180:
             if powerupTimer is None:
                 powerupTimer = myTimer.Timer(random.randint(5,10))
                 powerupTimer.start_timer()
@@ -513,7 +518,7 @@ def start_game():
                     
             elif powerupType == powerups_type.PowerUpType.FAST_PLAYER:
                 powerup_text = powerupfont.render("Powerup: FAST PLAYER", True,(255,255,255))
-                player.changeMultiplier = 8
+                player.changeMultiplier = 3
             
             elif powerupType == powerups_type.PowerUpType.REVERSE_CONTROLLS:
                 powerup_text = powerupfont.render("Powerup: CONTROLLS REVERSED", True,(255,255,255))
@@ -573,6 +578,8 @@ high_score = main_font.render("HIGH-SCORES", True, (255,255,255))
 end_font = main_font.render("QUIT", True, (255, 255, 255))
 title = title_font.render("pac-man", True, (220,250,0))
 
+sound_effect_channel.play(theme)
+
 while running:
     flicker = timer.get_status()
 
@@ -587,10 +594,13 @@ while running:
                 menuOption -= 1
         elif keystate[pygame.K_RETURN]:
             if menuOption == 0:
+                sound_effect_channel.stop()
                 timer.kill_thread()
                 create_profile()
+                sound_effect_channel.stop()
                 timer = myTimer.Timer(0.3)
                 timer.start_timer()
+                sound_effect_channel.play(theme)
             elif menuOption == 1:
                 timer.kill_thread()
                 load_scores()
@@ -706,7 +716,7 @@ while running:
             screen.blit(t_ch, (480, 380))
 
             if index == 3:
-                screen.blit(enter, (420, 500))
+                screen.blit(enter, (270, 700))
 
             pygame.display.update()
             clock.tick(60)
