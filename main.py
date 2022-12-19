@@ -10,6 +10,7 @@ import copy
 import powerup
 import random
 import powerups_type 
+import meteor
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -55,7 +56,7 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
-levelCount = 1
+levelCount = 2
 
 highscores = []
 
@@ -367,7 +368,7 @@ def powerupCollision(player, enemy):
    
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag, powerupOnField, powerupTimer, boxPoweredUp, playerPoweredUpTimer
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag, powerupOnField, powerupTimer, boxPoweredUp, playerPoweredUpTimer, levelCount
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
@@ -380,6 +381,12 @@ def start_game():
 
     powerupBox = powerup.Powerup()
     powerupType = None
+
+    meteors = []
+    meteors.clear()
+    for x in range(12):
+        meteors.append(meteor.Meteor())
+
 
     for enemy in enemies:
         enemy.timerToMove.start_timer()
@@ -544,6 +551,23 @@ def start_game():
 
         player.handle_movement(movementDirectionX, movementDirectionY)
 
+        if levelCount >= 2:
+            for x in meteors:
+                if powerupCollision(player, x):
+                    player_lives -= 1
+                    player.restart()
+                    reset_enemies()
+                    coll = True
+                    meteors.clear()
+                    player_death_channel.play(death_sound)
+                    for x in range(12):
+                        meteors.append(meteor.Meteor())
+                    break
+
+                x.mainGameMovement()
+                genericBlit(x.x, x.y, x.img)
+
+        
         genericBlit(player.x, player.y, player.img)
         screen.blit(score_ft, (50,920))
         screen.blit(live_score, (500, 920))

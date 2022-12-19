@@ -12,3 +12,5 @@ gfg:1990
 ppp:580
 ooe:2390
 iic:600
+iic:0
+uuc:10
