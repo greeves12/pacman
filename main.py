@@ -7,6 +7,8 @@ import math
 import time
 import enemy
 import copy
+import powerup
+import random
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -20,6 +22,7 @@ PI = math.pi
 eating_dot_sound = pygame.mixer.Sound("./media/pacman_chomp.wav")
 death_sound = pygame.mixer.Sound("./media/pacman_death.wav")
 eat_ghost = pygame.mixer.Sound("./media/pacman_eatghost.wav")
+siren = pygame.mixer.Sound("./media/pacman_siren.wav")
 
 loaded_eating_sounds = []
 
@@ -63,10 +66,13 @@ poweredUp = False
 player_lives = 3
 
 
-sound_effect_channel = pygame.mixer.Channel(0)
-player_death_channel = pygame.mixer.Channel(1)
-ghost_death_channel = pygame.mixer.Channel(2)
+sound_effect_channel = pygame.mixer.Channel(0) #pacman eating sounds
+player_death_channel = pygame.mixer.Channel(1) #player death sound
+ghost_death_channel = pygame.mixer.Channel(2) #ghost death sound
+siren_sound = pygame.mixer.Channel(3)
 
+powerupTimer = None
+powerupOnField = False
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -191,7 +197,7 @@ def reset_enemies():
 
 
 def end_game():
-    global level, levelCount, dots_left, player_lives, score
+    global level, levelCount, dots_left, player_lives, score, powerupOnField, powerupTimer
     restart = False
 
     title1 = title_font.render("GAME OVER", True, (200, 250,0))
@@ -221,6 +227,11 @@ def end_game():
     player.restart()
 
     reset_enemies()
+
+    if not powerupTimer is None:
+        powerupTimer.kill_thread()
+        powerupTimer = None
+    powerupOnField = False
     
 def high_score_screen():
     global highscores
@@ -264,8 +275,10 @@ def high_score_screen():
         clock.tick(60)
 
 def next_level():
-    global level, levelCount, dots_left
+    global level, levelCount, dots_left, powerupOnField, powerupTimer
     proceed = False
+
+    
 
     while not proceed:
         for event in pygame.event.get():
@@ -287,6 +300,11 @@ def next_level():
     player.restart()
 
     reset_enemies()
+
+    if not powerupTimer is None:
+        powerupTimer.kill_thread()
+        powerupTimer = None
+    powerupOnField = False
 
 def checkCollisions(player, enemies, poweredUp):
     collision = False
@@ -323,7 +341,7 @@ def checkCollisions(player, enemies, poweredUp):
 
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag, powerupOnField, powerupTimer
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
@@ -370,6 +388,21 @@ def start_game():
                 timer.kill_thread()
                 pygame.quit()
                 sys.exit()
+
+        if dots_left < 180:
+            if powerupTimer is None:
+                powerupTimer = myTimer.Timer(random.randint(5,10))
+                powerupTimer.start_timer()
+        
+
+        if not powerupTimer is None:
+            if powerupTimer.get_status():
+                if powerupOnField == False:
+                    powerupOnField = True
+
+
+
+
 
         player.handle_movement(movementDirectionX, movementDirectionY)
         player_hitbox.centerx = player.x+13

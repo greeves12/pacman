@@ -24,7 +24,7 @@ class Enemy():
     list = [-1,1]
     direct = 1
     moveOut = False
-    changeMultiplier = 3
+    changeMultiplier = 2
 
     timerToMove = None
 
@@ -33,7 +33,7 @@ class Enemy():
         self.y = self.startY
         self.normalImage = imgage
         self.img = self.normalImage
-        self.changeMultiplier = 3
+        self.changeMultiplier = 2
         self.randomMoveChance = randomMove
         self.direct = random.choice(self.list)
         self.timerToMove = myTimer.Timer(5)
@@ -279,7 +279,7 @@ class Enemy():
 
     def handleMovement(self, player):
         doRandom = False
-        self.changeMultiplier = 3
+        self.changeMultiplier = 2
         
         if not self.powerUpTimer is None:
             self.changeMultiplier = 2 
