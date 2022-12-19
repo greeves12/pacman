@@ -9,7 +9,7 @@ import enemy
 import copy
 import powerup
 import random
-import powerups_type
+import powerups_type 
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -75,7 +75,7 @@ siren_sound = pygame.mixer.Channel(3)
 powerupTimer = None
 powerupOnField = False
 boxPoweredUp = False
-playerPoweredUpTimer = myTimer.Timer(5)
+playerPoweredUpTimer = myTimer.Timer(7)
 
 
 def genericBlit(x, y, img):
@@ -353,7 +353,7 @@ def powerupCollision(player, enemy):
     enemyY2 = enemy.y + 26
 
     if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
-        print("tt")
+       
         return True
 
     return False
@@ -434,7 +434,7 @@ def start_game():
 
 
 
-        player.handle_movement(movementDirectionX, movementDirectionY)
+        
         player_hitbox.centerx = player.x+13
         player_hitbox.centery = player.y+13
 
@@ -485,11 +485,41 @@ def start_game():
             if powerupCollision(player, powerupBox):
                 powerupOnField = False
                 boxPoweredUp = True
+                powerupType = powerups_type.PowerUpType(random.randint(1,4))
                 playerPoweredUpTimer.start_timer()
-
+                powerupTimer.kill_thread()
+                powerupTimer = myTimer.Timer(random.randint(5,10))
+       
 
         if boxPoweredUp:
+           
+            if powerupType == powerups_type.PowerUpType.FAST_AI:
+                
+                for enemy in enemies:
+                    enemy.changeMultiplier = 3
+                    
+            elif powerupType == powerups_type.PowerUpType.FREEZE_AI:
+                
+                for enemy in enemies:
+                    enemy.changeMultiplier = 0
+                    
+            elif powerupType == powerups_type.PowerUpType.FAST_PLAYER:
+                
+                player.changeMultiplier = 8
             
+            if playerPoweredUpTimer.get_status():
+                playerPoweredUpTimer.kill_thread()
+                playerPoweredUpTimer = myTimer.Timer(7)
+                boxPoweredUp = False
+
+                player.changeMultiplier = 2
+
+                for enemy in enemies:
+                    enemy.changeMultiplier = 2
+
+                powerupTimer.start_timer()
+
+        player.handle_movement(movementDirectionX, movementDirectionY)
 
         genericBlit(player.x, player.y, player.img)
         screen.blit(score_ft, (50,920))

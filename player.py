@@ -12,8 +12,8 @@ class Player():
     vetoDirection = -1
     startX = 440
     startY = 505
-  
-    
+    changeMultiplier = 2
+
     player_images = [pygame.image.load("./assets/1.png"), pygame.image.load("./assets/2.png"), pygame.image.load("./assets/3.png"), pygame.image.load("./assets/4.png")]
 
     def __init__(self):

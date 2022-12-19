@@ -279,10 +279,10 @@ class Enemy():
 
     def handleMovement(self, player):
         doRandom = False
-        self.changeMultiplier = 2
+        #self.changeMultiplier = 2
         
-        if not self.powerUpTimer is None:
-            self.changeMultiplier = 2 
+        #if not self.powerUpTimer is None:
+         #   self.changeMultiplier = 2 
 
         if self.spawnAnimation:
             self.enterSpawnAnimation()
