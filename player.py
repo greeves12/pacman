@@ -103,10 +103,10 @@ class Player():
             self.y += movementY * self.changeMultiplier
             self.player_moving = True
 
-        if self.x < 20:
-            self.x = 820
-        elif self.x > 820:
-            self.x = 20
+        if self.x < 0:
+            self.x = 900
+        elif self.x > 900:
+            self.x = 0
 
 
         if movementX == 0 and movementY == 0:
