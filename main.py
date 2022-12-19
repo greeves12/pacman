@@ -27,6 +27,10 @@ death_sound = pygame.mixer.Sound("./media/pacman_death.wav")
 eat_ghost = pygame.mixer.Sound("./media/pacman_eatghost.wav")
 siren = pygame.mixer.Sound("./media/pacman_siren.wav")
 theme = pygame.mixer.Sound("./media/pacman_theme.wav")
+music = pygame.mixer.Sound("./media/Ageispolis.wav")
+victory = pygame.mixer.Sound("./media/final-fantasy-vii-victory-fanfare-1.wav")
+gameover = pygame.mixer.Sound("./media/gameover.wav")
+
 
 loaded_eating_sounds = []
 
@@ -41,6 +45,7 @@ main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 score_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 15)
 title_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 80)
 powerupfont = pygame.font.Font("./fonts/ARCADE_I.ttf", 17)
+key_font = pygame.font.Font("./fonts/keyboard.otf", 20)
 
 running = True
 flicker = False
@@ -68,20 +73,25 @@ enemies = [enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load
 enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/orange.png"), (26,26))), enemy.Enemy(0.8/levelCount, pygame.transform.scale( pygame.image.load("./assets/pink.png"), (26,26)))]
 
 poweredUp = False
-player_lives = 3
+player_lives = 5
 
 
 sound_effect_channel = pygame.mixer.Channel(0) #pacman eating sounds/menu music
 player_death_channel = pygame.mixer.Channel(1) #player death sound
 ghost_death_channel = pygame.mixer.Channel(2) #ghost death sound
 siren_sound = pygame.mixer.Channel(3)
+music_channel = pygame.mixer.Channel(4)
 
+siren_sound.set_volume(0.3)
 
 powerupTimer = None
 powerupOnField = False
 boxPoweredUp = False
 playerPoweredUpTimer = myTimer.Timer(7)
 
+background1 = pygame.transform.scale(pygame.image.load("./assets/bc4.png"), (900,1000))
+background2 = pygame.transform.scale(pygame.image.load("./assets/stars.png"),(900,1000))
+background3 = pygame.transform.scale(pygame.image.load("./assets/pngwing.com.png"),(900,1000))
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -203,6 +213,8 @@ def reset_enemies():
             enemy.timerToMove.kill_thread()
         enemy.timerToMove = myTimer.Timer(5)
         enemy.timerToMove.start_timer()
+        siren.stop()
+        enemy.swapToNormal()
 
 
 def end_game():
@@ -211,6 +223,8 @@ def end_game():
 
     title1 = title_font.render("GAME OVER", True, (200, 250,0))
     title2 = title_font.render("PRESS ENTER", True, (255,255,255))
+    pygame.mixer.stop()
+    gameover.play()
 
     while not restart:
         for event in pygame.event.get():
@@ -229,7 +243,7 @@ def end_game():
         clock.tick(60)
 
     dots_left = 246
-    player_lives = 3
+    player_lives = 5
     level = copy.deepcopy(board.boards)
     levelCount = 1
     
@@ -290,6 +304,9 @@ def next_level():
     text1 = nextLevel.render("Level Cleared!", True, (255,255,255))
     text2 = nextLevel.render("<Enter to continue>", True, (255,255,255))
 
+    siren_sound.stop()
+    victory.play()
+
     while not proceed:
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
@@ -319,6 +336,7 @@ def next_level():
     powerupOnField = False
 
 def checkCollisions(player, enemies, poweredUp):
+    global score
     collision = False
     playerX1 = player.x
     playerX2 = player.x + 26
@@ -343,6 +361,7 @@ def checkCollisions(player, enemies, poweredUp):
                 enemy.dead = True
                 enemy.powerUpTimer = None
                 ghost_death_channel.play(eat_ghost)
+                score+=50
                     
     return collision
 
@@ -399,6 +418,7 @@ def start_game():
         pressed = False 
         score_ft = main_font.render(f"SCORE: {score}", False, (255,255,255))
         live_score = main_font.render("Lives: ", True, (255,255,255))
+        leveltext = main_font.render(f"Level:{levelCount}", True, (255,255,255))
         powerup_text = None
 
         paclife = score_font.render("c", False, (220,255,0))
@@ -407,6 +427,8 @@ def start_game():
         if gateTimer.get_status():
             gateTimer.kill_thread()
             gateFlag = True
+        
+        
 
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
@@ -487,6 +509,12 @@ def start_game():
 
         
         screen.fill((0,0,0))
+        if levelCount == 1:
+            screen.blit(background1, (0,0))
+        elif levelCount == 2:
+            screen.blit(background2, (0,0))
+        elif levelCount >= 3:
+            screen.blit(background3, (0,0)) 
         draw_board()
 
         if poweredUp:
@@ -540,6 +568,7 @@ def start_game():
                         movementDirectionY = movementDirectionY * -1
 
             screen.blit(powerup_text, (330,505))
+        
 
             if playerPoweredUpTimer.get_status():
                 playerPoweredUpTimer.kill_thread()
@@ -554,6 +583,15 @@ def start_game():
                 powerupTimer.start_timer()
 
         player.handle_movement(movementDirectionX, movementDirectionY)
+        screen.blit(leveltext, (365,440))
+
+        for enemy in enemies:
+            if not enemy.inSpawn:
+                siren_sound.queue(siren)
+                
+                break
+
+       
 
         if levelCount >= 2:
             for x in meteors:
@@ -621,6 +659,7 @@ over_font = main_font.render("START", True, (255, 255, 255))
 high_score = main_font.render("HIGH-SCORES", True, (255,255,255))
 end_font = main_font.render("QUIT", True, (255, 255, 255))
 title = title_font.render("pac-man", True, (220,250,0))
+credit = powerupfont.render("Created by Tate Greeves", True, (0,255,0))
 
 sound_effect_channel.play(theme)
 
@@ -642,6 +681,7 @@ while running:
                 timer.kill_thread()
                 create_profile()
                 sound_effect_channel.stop()
+            
                 timer = myTimer.Timer(0.3)
                 timer.start_timer()
                 sound_effect_channel.play(theme)
@@ -663,6 +703,7 @@ while running:
 
     screen.fill((0,0,0))
     screen.blit(title, (210,150))
+    screen.blit(credit, (250,800))
 
     if flicker == False and menuOption == 2:
         screen.blit(over_font, (350,300))
@@ -704,7 +745,10 @@ while running:
                     if keystate[pygame.K_RETURN]:
                         if index == 3:
                             name = name + firstChar + secondChar + thirdChar
+                            music_channel.play(music)
+                            music_channel.set_volume(0.6)
                             start_game()
+                            music_channel.stop()
                             with open("./data/data.txt", "a+") as file_object:
                                 # Move read cursor to the start of file.
                                 file_object.seek(0)
