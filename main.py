@@ -9,6 +9,7 @@ import enemy
 import copy
 import powerup
 import random
+import powerups_type
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -73,6 +74,9 @@ siren_sound = pygame.mixer.Channel(3)
 
 powerupTimer = None
 powerupOnField = False
+boxPoweredUp = False
+playerPoweredUpTimer = myTimer.Timer(5)
+
 
 def genericBlit(x, y, img):
     screen.blit(img, (x,y))
@@ -336,9 +340,28 @@ def checkCollisions(player, enemies, poweredUp):
 
 
 
+def powerupCollision(player, enemy):
+    
+    playerX1 = player.x
+    playerX2 = player.x + 26
+    playerY1 = player.y
+    playerY2 = player.y + 26
+
+    enemyX1 = enemy.x
+    enemyX2 = enemy.x+26
+    enemyY1 = enemy.y
+    enemyY2 = enemy.y + 26
+
+    if (playerX1 < enemyX2 and playerX2 > enemyX1 and playerY1 < enemyY2 and playerY2 > enemyY1):
+        print("tt")
+        return True
+
+    return False
+
+   
 
 def start_game():
-    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag, powerupOnField, powerupTimer
+    global flicker, movementDirectionY, movementDirectionX, dots_left, player_lives, poweredUp,score, gateFlag, powerupOnField, powerupTimer, boxPoweredUp, playerPoweredUpTimer
     gameLoop = True
     timer = myTimer.Timer(0.8)
     timer.start_timer()
@@ -350,7 +373,7 @@ def start_game():
     gateFlag = False
 
     powerupBox = powerup.Powerup()
-    
+    powerupType = None
 
     for enemy in enemies:
         enemy.timerToMove.start_timer()
@@ -396,7 +419,7 @@ def start_game():
         
 
         if not powerupTimer is None:
-            if powerupTimer.get_status():
+            if powerupTimer.get_status() and boxPoweredUp == False:
                 if powerupOnField == False:
                     powerupOnField = True
                     powerupBox.restart()
@@ -455,6 +478,19 @@ def start_game():
                         x.dead = False
                         x.swapToNormal()
         
+
+        if boxPoweredUp == False and powerupOnField:
+            powerupBox.handleMovement()
+
+            if powerupCollision(player, powerupBox):
+                powerupOnField = False
+                boxPoweredUp = True
+                playerPoweredUpTimer.start_timer()
+
+
+        if boxPoweredUp:
+            
+
         genericBlit(player.x, player.y, player.img)
         screen.blit(score_ft, (50,920))
         screen.blit(live_score, (500, 920))
