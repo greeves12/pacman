@@ -11,6 +11,7 @@ import powerup
 import random
 import powerups_type 
 import meteor
+import lasers
 
 pygame.init()
 pygame.mixer.pre_init(44100, -16, 2, 512)
@@ -56,7 +57,7 @@ menuOption = 0 #0 for start, 1 for quit
 timer = myTimer.Timer(0.3)
 timer.start_timer()
 
-levelCount = 2
+levelCount = 1
 
 highscores = []
 
@@ -383,10 +384,13 @@ def start_game():
     powerupType = None
 
     meteors = []
+    laser = []
     meteors.clear()
     for x in range(12):
         meteors.append(meteor.Meteor())
 
+    for x in range(13):
+        laser.append(lasers.Laser())
 
     for enemy in enemies:
         enemy.timerToMove.start_timer()
@@ -567,6 +571,22 @@ def start_game():
                 x.mainGameMovement()
                 genericBlit(x.x, x.y, x.img)
 
+            if levelCount >= 3:
+                for x in laser:
+                    
+                    if powerupCollision(player, x):
+                        player_lives-=1
+                        player.restart()
+                        reset_enemies()
+                        coll = True
+                        laser.clear()
+                        player_death_channel.play(death_sound)
+
+                        for x in range(13):
+                            laser.append(lasers.Laser())
+                        break
+                    x.mainGameMovement()
+                    genericBlit(x.x, x.y, x.img)
         
         genericBlit(player.x, player.y, player.img)
         screen.blit(score_ft, (50,920))

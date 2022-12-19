@@ -14,3 +14,4 @@ ooe:2390
 iic:600
 iic:0
 uuc:10
+iic:950
