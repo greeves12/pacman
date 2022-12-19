@@ -260,6 +260,7 @@ def high_score_screen():
     regularscore = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
     delete_key = key_font.render("h", True, (255,255,255))
     text = powerupfont.render("Go back", True, (255,255,255))
+    nodata = regularscore.render("No Data!", True, (255,255,255))
 
     screen_index = 1
 
@@ -292,7 +293,9 @@ def high_score_screen():
             y_coord+=50
             number+=1
             
-        
+        if len(highscores) == 0:
+            screen.blit(nodata, (350,300))
+
         pygame.display.update()
         clock.tick(60)
 
