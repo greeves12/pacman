@@ -37,6 +37,7 @@ dots_left = 246
 main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 score_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 15)
 title_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 80)
+powerupfont = pygame.font.Font("./fonts/ARCADE_I.ttf", 17)
 
 running = True
 flicker = False
@@ -378,9 +379,12 @@ def start_game():
     for enemy in enemies:
         enemy.timerToMove.start_timer()
 
-    while gameLoop:  
+    while gameLoop: 
+        pressed = False 
         score_ft = main_font.render(f"SCORE: {score}", False, (255,255,255))
         live_score = main_font.render("Lives: ", True, (255,255,255))
+        powerup_text = None
+
         paclife = score_font.render("c", False, (220,255,0))
         flicker = timer.get_status()
 
@@ -394,18 +398,22 @@ def start_game():
             if keystate[pygame.K_DOWN]:
                 movementDirectionX = 0
                 movementDirectionY = 1
+                pressed = True
                 
             elif keystate[pygame.K_UP]:
                 movementDirectionX = 0
                 movementDirectionY = -1
+                pressed = True
               
             elif keystate[pygame.K_LEFT]:
                 movementDirectionY = 0
                 movementDirectionX = -1
+                pressed = True
                 
             elif keystate[pygame.K_RIGHT]:
                 movementDirectionX = 1
                 movementDirectionY = 0
+                pressed = True
                 
             if event.type == pygame.QUIT:
                 timer.kill_thread()
@@ -493,20 +501,30 @@ def start_game():
 
         if boxPoweredUp:
            
-            if powerupType == powerups_type.PowerUpType.FAST_AI:
-                
+            if powerupType == powerups_type.PowerUpType.FAST_AI: 
+                powerup_text = powerupfont.render("Powerup: FAST AI", True,(255,255,255))
                 for enemy in enemies:
                     enemy.changeMultiplier = 3
                     
             elif powerupType == powerups_type.PowerUpType.FREEZE_AI:
-                
+                powerup_text = powerupfont.render("Powerup: FROZEN AI", True,(255,255,255))
                 for enemy in enemies:
                     enemy.changeMultiplier = 0
                     
             elif powerupType == powerups_type.PowerUpType.FAST_PLAYER:
-                
+                powerup_text = powerupfont.render("Powerup: FAST PLAYER", True,(255,255,255))
                 player.changeMultiplier = 8
             
+            elif powerupType == powerups_type.PowerUpType.REVERSE_CONTROLLS:
+                powerup_text = powerupfont.render("Powerup: CONTROLLS REVERSED", True,(255,255,255))
+                if pressed:
+                    if movementDirectionX != 0:
+                        movementDirectionX = movementDirectionX * -1
+                    elif movementDirectionY != 0:
+                        movementDirectionY = movementDirectionY * -1
+
+            screen.blit(powerup_text, (330,505))
+
             if playerPoweredUpTimer.get_status():
                 playerPoweredUpTimer.kill_thread()
                 playerPoweredUpTimer = myTimer.Timer(7)
