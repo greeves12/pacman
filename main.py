@@ -45,7 +45,7 @@ main_font = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
 score_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 15)
 title_font = pygame.font.Font("./fonts/PAC-FONT.ttf", 80)
 powerupfont = pygame.font.Font("./fonts/ARCADE_I.ttf", 17)
-key_font = pygame.font.Font("./fonts/keyboard.otf", 20)
+key_font = pygame.font.Font("./fonts/keyboard.otf", 50)
 
 running = True
 flicker = False
@@ -99,6 +99,7 @@ def genericBlit(x, y, img):
 def draw_board():
     global dots_left, poweredUp, score
     color = (0, 0, 255)
+    val = False
     num1 = ((height - 50) // 32) # This is because there are 32 tiles in each columnn
     num2 = (width // 30) # This is because there are 30 tiles in each row
 
@@ -129,11 +130,8 @@ def draw_board():
                 if point_calculator < (10 + 13):
                     level[i][j] = 0
                     dots_left -=1
-                    screen.fill((0,0,0))
-                    draw_board()
-                    genericBlit(player.x, player.y, player.img)
-                    pygame.display.update()
-                    time.sleep(1)
+                    
+                    val = True 
                     poweredUp = True
 
                     for enemy in enemies:
@@ -142,12 +140,10 @@ def draw_board():
                                 enemy.powerUpTimer.kill_thread()
                             
                             enemy.powerUpTimer = myTimer.Timer(7)
-                            enemy.powerUpTimer.start_timer()
-                        
-
-                    
+                            enemy.powerUpTimer.start_timer()  
                 elif not flicker:
                     pygame.draw.circle(screen, 'white', (x, y), 10)
+                
             if level[i][j] == 3:
                 pygame.draw.line(screen, color, (j * num2 + (0.5 * num2), i * num1),
                                  (j * num2 + (0.5 * num2), i * num1 + num1), 3)
@@ -171,7 +167,7 @@ def draw_board():
                 
                 pygame.draw.line(screen, 'white', (j * num2, i * num1 + (0.5 * num1)),
                                  (j * num2 + num2, i * num1 + (0.5 * num1)), 3)
-                                
+    return val                
             
 
 def load_scores():
@@ -262,6 +258,8 @@ def high_score_screen():
 
     highscore_title = pygame.font.Font("./fonts/PAC-FONT.ttf", 40)
     regularscore = pygame.font.Font("./fonts/ARCADE_I.ttf", 24)
+    delete_key = key_font.render("h", True, (255,255,255))
+    text = powerupfont.render("Go back", True, (255,255,255))
 
     screen_index = 1
 
@@ -281,7 +279,8 @@ def high_score_screen():
 
         screen.fill((0,0,0))
         screen.blit(title, (270,100))
-        
+        screen.blit(delete_key, (20,800))
+        screen.blit(text, (120, 810))
 
         number = 1
         y_coord = 180
@@ -305,14 +304,14 @@ def next_level():
     text2 = nextLevel.render("<Enter to continue>", True, (255,255,255))
 
     siren_sound.stop()
-    victory.play()
+    sound_effect_channel.play(victory)
 
     while not proceed:
         for event in pygame.event.get():
             keystate = pygame.key.get_pressed()
             if keystate[pygame.K_RETURN]:
                 proceed = True
-
+                sound_effect_channel.stop()
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
@@ -405,6 +404,7 @@ def start_game():
     meteors = []
     laser = []
     meteors.clear()
+    laser.clear()
     for x in range(12):
         meteors.append(meteor.Meteor())
 
@@ -515,7 +515,7 @@ def start_game():
             screen.blit(background2, (0,0))
         elif levelCount >= 3:
             screen.blit(background3, (0,0)) 
-        draw_board()
+        val = draw_board()
 
         if poweredUp:
             for x in enemies:
@@ -643,14 +643,26 @@ def start_game():
         for x in enemies:
             genericBlit(x.x, x.y, x.img)
         
+        
+
         if dots_left == 0:
+            meteors.clear()
+            laser.clear()
+            for x in range(12):
+                meteors.append(meteor.Meteor())
+
+            for x in range(13):
+                laser.append(lasers.Laser())
+
             next_level()
         
         if coll:
             time.sleep(2)
-
+        if val:
+            time.sleep(1)
         pygame.display.update()
         clock.tick(60)
+        
 
 
 #This will be the main menu of the game
