@@ -332,9 +332,6 @@ def checkCollisions(player, enemies, poweredUp):
                 enemy.powerUpTimer = None
                 eat_ghost.play()
                     
-                
-            
-    
     return collision
 
 
@@ -351,6 +348,9 @@ def start_game():
     gateTimer = myTimer.Timer(5)
     gateTimer.start_timer()
     gateFlag = False
+
+    powerupBox = powerup.Powerup()
+    
 
     for enemy in enemies:
         enemy.timerToMove.start_timer()
@@ -389,7 +389,7 @@ def start_game():
                 pygame.quit()
                 sys.exit()
 
-        if dots_left < 180:
+        if dots_left < 245:
             if powerupTimer is None:
                 powerupTimer = myTimer.Timer(random.randint(5,10))
                 powerupTimer.start_timer()
@@ -399,8 +399,15 @@ def start_game():
             if powerupTimer.get_status():
                 if powerupOnField == False:
                     powerupOnField = True
-
-
+                    powerupBox.restart()
+                    powerupTimer.kill_thread()
+                    powerupTimer = myTimer.Timer(10)
+                    powerupTimer.start_timer()
+                else:
+                    powerupOnField = False
+                    powerupTimer.kill_thread()
+                    powerupTimer = myTimer.Timer(random.randint(5,10))
+                    powerupTimer.start_timer()
 
 
 
@@ -451,6 +458,9 @@ def start_game():
         genericBlit(player.x, player.y, player.img)
         screen.blit(score_ft, (50,920))
         screen.blit(live_score, (500, 920))
+
+        if powerupOnField:
+            genericBlit(powerupBox.x, powerupBox.y, powerupBox.img)
 
         neX = 650
         neY = 925

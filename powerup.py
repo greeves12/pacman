@@ -23,7 +23,10 @@ class Powerup():
 
         self.img =  pygame.transform.scale(self.player_images[0], (26,26))
 
-
+    def restart(self):
+        self.x = self.startX
+        self.y = self.startY
+       
 
     def check_position(self, centerx, centery):
         turns = [False, False, False, False]
